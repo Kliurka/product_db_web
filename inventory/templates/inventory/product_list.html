@@ -1,0 +1,94 @@
+{% extends "inventory/base.html" %}
+
+{% load sort_tags %}
+
+{% block content %}
+<div class="page">
+
+    <div class="subtitle">Catalog Management</div>
+    <h1>Product List</h1>
+    <div>{{ products|length }} records</div>
+
+    <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+        <a href="/products/add/">
+            <button class="btn-dark" type="button">+ Add Product</button>
+        </a>
+
+        <a href="/products/export/">
+            <button type="button">Export</button>
+        </a>
+    </div>
+
+    <form method="get" class="toolbar">
+        <input class="search" type="text" name="q" placeholder="Search by code or name..." value="{{ q }}">
+
+        <select name="type">
+            <option value="">All Types</option>
+            {% for t in types %}
+                <option value="{{ t.id }}" {% if selected_type == t.id|stringformat:"s" %}selected{% endif %}>
+                    {{ t.name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <select name="status">
+            <option value="">All Statuses</option>
+            {% for s in statuses %}
+                <option value="{{ s.0 }}" {% if selected_status == s.0 %}selected{% endif %}>
+                    {{ s.1 }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <button class="btn-green" type="submit">Filter</button>
+        <a href="/scan/"><button class="btn-dark" type="button">Scan QR</button></a>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>{% sort_link 'code' 'Code' %}</th>
+                <th>{% sort_link 'name' 'Name' %}</th>
+                <th>{% sort_link 'type__name' 'Type' %}</th>
+                <th>{% sort_link 'texture__name' 'Texture' %}</th>
+                <th>{% sort_link 'dimension_x' 'Dim X' %}</th>
+                <th>{% sort_link 'dimension_y' 'Dim Y' %}</th>
+                <th>Description</th>
+                <th>{% sort_link 'storage_location__sector' 'Storage Loc.' %}</th>
+                <th>{% sort_link 'price' 'Price' %}</th>
+                <th>{% sort_link 'status' 'Status' %}</th>
+                <th class="hide-mobile">{% sort_link 'created_at' 'Created At' %}</th>
+                <th class="hide-mobile">Created By</th>
+                <th class="hide-mobile">{% sort_link 'updated_at' 'Updated At' %}</th>
+                <th class="hide-mobile">Updated By</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for p in products %}
+            <tr>
+                <td><a class="code" href="/product/{{ p.code }}/edit/">{{ p.code }}</a></td>
+                <td><b>{{ p.name }}</b></td>
+                <td>{{ p.type }}</td>
+                <td>{{ p.texture }}</td>
+                <td>{{ p.dimension_x }}</td>
+                <td>{{ p.dimension_y }}</td>
+                <td>{{ p.description|default:"-"|truncatechars:30 }}</td>
+                <td>{{ p.storage_location }}</td>
+                <td><b>{{ p.price }}</b></td>
+                <td><span class="status {{ p.status }}">{{ p.status }}</span></td>
+                <td class="hide-mobile">{{ p.created_at|date:"Y-m-d" }}</td>
+                <td class="hide-mobile">{{ p.created_by }}</td>
+                <td class="hide-mobile">{{ p.updated_at|date:"Y-m-d" }}</td>
+                <td class="hide-mobile">{{ p.updated_by }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="14">No products found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}

@@ -1,0 +1,414 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="page">
+
+    <div class="subtitle">Order Management / Orders</div>
+    {% if mode == 'edit' %}
+        <h1>Edit Order</h1>
+    {% else %}
+        <h1>Add Order</h1>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.errors %}
+            <div style="border:3px solid red; padding:12px; margin:12px 0; background:#ffdede;">
+                {{ form.errors }}
+            </div>
+        {% endif %}
+
+        <div class="top-actions">
+            <a href="/orders/"><button type="button">× Cancel</button></a>
+            <button class="btn-dark" type="submit">▣ Save Order</button>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">01 — Order Header</div>
+
+            <div class="form-row three">
+                <div class="field">
+                    <label>Order Code *</label>
+                    {{ form.order_code }}
+                </div>
+
+                <div class="field">
+                    <label>Reservation Status</label>
+                    <input type="text" value="pending" disabled>
+                </div>
+
+                <div class="field">
+                    <label>Order Mode</label>
+                    <div class="mode-buttons">
+                        <button type="button" class="btn-dark">Create New</button>
+                        <button type="button">Add To Existing</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">02 — Customer</div>
+
+            <div class="form-row">
+                <div class="field">
+                    <label>Customer *</label>
+                    {{ form.customer }}
+                </div>
+
+                <div class="field">
+                    <label>Customer Discount</label>
+                    {{ form.discount }}
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">03 — Products <span id="product-count">0</span> lines</div>
+
+            <label>Select Product</label>
+            <div class="form-row">
+                <select id="product-select">
+                    <option value="">— choose product —</option>
+                    {% for p in products %}
+                        <option
+                            value="{{ p.id }}"
+                            data-code="{{ p.code }}"
+                            data-name="{{ p.name }}"
+                            data-price="{{ p.price|default:0 }}"
+                            data-texture="{{ p.texture }}"
+                            data-location="{{ p.storage_location }}"
+                        >
+                            {{ p.code }} — {{ p.name }} — {{ p.price }} EUR
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <button type="button" id="add-product-btn">▧ Add To Order</button>
+            </div>
+
+            <table style="margin-top:18px;">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Texture</th>
+                        <th>Location</th>
+                        <th>Price</th>
+                        <th>Discount %</th>
+                        <th>Tax %</th>
+                        <th>Total</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="order-lines"></tbody>
+            </table>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">04 — Totals</div>
+
+            <input type="hidden" name="partial_sum" id="id_partial_sum" value="{{ form.partial_sum.value|default:'0.00' }}">
+
+            <div class="form-row">
+                <div>
+                    <label>Default Tax Rate</label>
+                    <div class="choice-row">
+                        <button type="button" class="tax-preset" data-tax="0">0%</button>
+                        <button type="button" class="tax-preset" data-tax="5">5%</button>
+                        <button type="button" class="tax-preset" data-tax="10">10%</button>
+                        <button type="button" class="tax-preset" data-tax="13">13%</button>
+                        <button type="button" class="tax-preset btn-dark" data-tax="21">21%</button>
+                    </div>
+
+                    <label>Currency</label>
+                    <div class="choice-row">
+                        <button type="button" class="btn-dark">EUR</button>
+                        <button type="button">USD</button>
+                        <button type="button">GBP</button>
+                        <button type="button">CHF</button>
+                    </div>
+                </div>
+
+                <div class="total-box">
+                    <div>Subtotal: <b id="subtotal">0.00</b> EUR</div>
+                    <div>Discount: <b id="discount-total">0.00</b> EUR</div>
+                    <div>Tax: <b id="tax-total">0.00</b> EUR</div>
+                    <hr>
+                    <div class="grand-total">TOTAL: <b id="grand-total">0.00</b> EUR</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">05 — Payment & Notes</div>
+
+            <div class="form-row">
+                <div class="field">
+                    <label>Payment Status</label>
+                    {{ form.payment_status }}
+                </div>
+
+                <div class="field">
+                    <label>Description</label>
+                    {{ form.description }}
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">06 — Audit Trail</div>
+
+            <div class="form-row">
+                <div class="field">
+                    <label>Created At *</label>
+                    <input type="text" value="auto" disabled>
+                </div>
+
+                <div class="field">
+                    <label>Created By *</label>
+                    <input type="text" value="{{ request.user.username }}" disabled>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="field">
+                    <label>Updated At *</label>
+                    <input type="text" value="auto" disabled>
+                </div>
+
+                <div class="field">
+                    <label>Updated By *</label>
+                    <input type="text" value="{{ request.user.username }}" disabled>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-actions">
+            <a href="/orders/"><button type="button">× Cancel</button></a>
+            <button class="btn-dark" type="submit">▣ Save Order</button>
+        </div>
+    </form>
+</div>
+
+<script>
+let productCount = 0;
+let defaultTax = 21;
+
+function toNumber(value) {
+    const n = parseFloat(value);
+    return isNaN(n) ? 0 : n;
+}
+
+function recalcTotals() {
+    let subtotal = 0;
+    let discountTotal = 0;
+    let taxTotal = 0;
+    let grandTotal = 0;
+
+    document.querySelectorAll(".order-line").forEach(row => {
+        const price = toNumber(row.dataset.price);
+        const discountPercent = toNumber(row.querySelector(".discount-input").value);
+        const taxPercent = toNumber(row.querySelector(".tax-input").value);
+
+        const discountAmount = price * discountPercent / 100.0;
+        const priceAfterDiscount = price - discountAmount;
+        const taxAmount = priceAfterDiscount * taxPercent / 100.0;
+        const lineTotal = priceAfterDiscount + taxAmount;
+
+        row.querySelector(".line-total").innerText = lineTotal.toFixed(2);
+
+        subtotal += price;
+        discountTotal += discountAmount;
+        taxTotal += taxAmount;
+        grandTotal += lineTotal;
+    });
+
+    document.getElementById("subtotal").innerText = subtotal.toFixed(2);
+    document.getElementById("discount-total").innerText = discountTotal.toFixed(2);
+    document.getElementById("tax-total").innerText = taxTotal.toFixed(2);
+    document.getElementById("grand-total").innerText = grandTotal.toFixed(2);
+    document.getElementById("id_partial_sum").value = grandTotal.toFixed(2);
+}
+
+document.getElementById("add-product-btn").addEventListener("click", function () {
+    const select = document.getElementById("product-select");
+    const option = select.options[select.selectedIndex];
+
+    if (!select.value) {
+        return;
+    }
+
+    const productId = select.value;
+    const code = option.dataset.code;
+    const name = option.dataset.name;
+    const texture = option.dataset.texture || "";
+    const location = option.dataset.location || "";
+    const price = toNumber(option.dataset.price);
+
+    const tr = document.createElement("tr");
+    tr.className = "order-line";
+    tr.dataset.price = price;
+
+    tr.innerHTML = `
+        <td>
+            <b>${code}</b>
+            <input type="hidden" name="products" value="${productId}">
+        </td>
+        <td>${name}</td>
+        <td>${texture}</td>
+        <td>${location}</td>
+        <td>${price.toFixed(2)}</td>
+        <td><input class="discount-input" type="number" min="0" max="100" step="0.01" value="0"></td>
+        <td><input class="tax-input" type="number" min="0" max="100" step="0.01" value="${defaultTax}"></td>
+        <td><b class="line-total">0.00</b></td>
+        <td><button type="button" class="remove-line">×</button></td>
+    `;
+
+    document.getElementById("order-lines").appendChild(tr);
+
+    productCount++;
+    document.getElementById("product-count").innerText = productCount;
+
+    tr.querySelector(".discount-input").addEventListener("input", recalcTotals);
+    tr.querySelector(".tax-input").addEventListener("input", recalcTotals);
+
+    tr.querySelector(".remove-line").addEventListener("click", function () {
+        tr.remove();
+        productCount--;
+        document.getElementById("product-count").innerText = productCount;
+        recalcTotals();
+    });
+
+    select.remove(select.selectedIndex);
+    select.value = "";
+
+    recalcTotals();
+});
+
+document.querySelectorAll(".tax-preset").forEach(btn => {
+    btn.addEventListener("click", function () {
+        defaultTax = toNumber(this.dataset.tax);
+
+        document.querySelectorAll(".tax-preset").forEach(b => b.classList.remove("btn-dark"));
+        this.classList.add("btn-dark");
+
+        document.querySelectorAll(".tax-input").forEach(input => {
+            input.value = defaultTax;
+        });
+
+        recalcTotals();
+    });
+});
+</script>
+
+<style>
+.top-actions, .bottom-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    max-width: 980px;
+    margin: 10px 0 22px 0;
+}
+
+.panel {
+    border: 3px solid #111;
+    margin: 22px 0;
+    padding: 16px;
+    background: #f4f4ef;
+    max-width: 980px;
+    box-shadow: 4px 4px 0 #111;
+}
+
+.panel-title {
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-bottom: 2px solid #111;
+    margin: -16px -16px 16px -16px;
+    padding: 12px 16px;
+    background: #e8e8df;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.form-row.three {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+label {
+    display: block;
+    margin-top: 12px;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+input, select, textarea {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 6px;
+    margin-bottom: 8px;
+}
+
+textarea {
+    min-height: 70px;
+}
+
+.mode-buttons,
+.choice-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+}
+
+.total-box {
+    border: 2px solid #111;
+    padding: 16px;
+    background: white;
+    font-size: 14px;
+}
+
+.total-box div {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.grand-total {
+    font-size: 20px;
+}
+
+.center-note {
+    text-align: center;
+    margin: 36px;
+    color: #555;
+    letter-spacing: 1px;
+}
+
+.order-line input {
+    min-width: 70px;
+}
+
+@media (max-width: 800px) {
+    .form-row,
+    .form-row.three {
+        grid-template-columns: 1fr;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
+</style>
+{% endblock %}

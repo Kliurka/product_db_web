@@ -1,0 +1,282 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="page">
+
+    <div class="subtitle">Catalog Management / Products</div>
+        {% if mode == 'edit' %}
+            <h1>Edit Product</h1>
+            <div>Edit existing product</div>
+        {% else %}
+            <h1>Add Product</h1>
+            <div>New entry — fill all required fields</div>
+        {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="top-actions">
+            <a href="/products/"><button type="button">× Cancel</button></a>
+            <button type="reset">↻ Reset</button>
+            <button class="btn-dark" type="submit">▣ Save Product</button>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">01 — Identity</div>
+
+            <div class="form-row">
+                <div class="field">
+                    <label>Code *</label>
+                    <div class="code-row">
+                        {{ form.code }}
+                        {% if mode == 'edit' and product %}
+                            <a class="qr-btn" href="/product/{{ product.id }}/qr/" target="_blank">▦</a>
+                        {% else %}
+                            <span class="qr-btn" title="Save product first">▦</span>
+                        {% endif %}                        
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Name *</label>
+                    {{ form.name }}
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="field">
+                    <label>Type *</label>
+                    {{ form.type }}
+                </div>
+
+                <div class="field">
+                    <label>Material / Texture *</label>
+                    {{ form.texture }}
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">02 — Dimensions</div>
+
+            <div class="form-row">
+                <div class="field">
+                    <label>Dimension X *</label>
+                    <div class="unit-row">
+                        {{ form.dimension_x }}
+                        <span>mm</span>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Dimension Y *</label>
+                    <div class="unit-row">
+                        {{ form.dimension_y }}
+                        <span>mm</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title right-title">
+                <span>03 — Description</span>
+                <span>0 / 200 min</span>
+            </div>
+            {{ form.description }}
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">04 — Storage & Pricing</div>
+
+            <div class="form-row three">
+                <div class="field">
+                    <label>Storage Location *</label>
+                    {{ form.storage_location }}
+                </div>
+
+                <div class="field">
+                    <label>Status *</label>
+                    {{ form.status }}
+                </div>
+
+                <div class="field">
+                    <label>Price *</label>
+                    {{ form.price }}
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title right-title">
+                <span>05 — Photos 0/6</span>
+                <button type="button">▧ Add Photo</button>
+            </div>
+
+            <div class="photo-row">
+                <div class="photo-box"></div>
+                <div class="photo-box"></div>
+                <div class="photo-box"></div>
+                <div class="photo-box"></div>
+                <div class="photo-box"></div>
+                <div class="photo-box"></div>
+            </div>
+
+            <small>Accepted formats: JPG, PNG, WEBP — max 8 MB per file</small>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">06 — Audit Trail</div>
+
+            <div class="form-row">
+                <div class="field">
+                    <label>Created At *</label>
+                    <input type="text" value="auto" disabled>
+                </div>
+
+                <div class="field">
+                    <label>Created By *</label>
+                    <input type="text" value="{{ request.user.username }}" disabled>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="field">
+                    <label>Updated At *</label>
+                    <input type="text" value="auto" disabled>
+                </div>
+
+                <div class="field">
+                    <label>Updated By *</label>
+                    <input type="text" value="{{ request.user.username }}" disabled>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-actions">
+            <a href="/products/"><button type="button">× Cancel</button></a>
+            <button class="btn-dark" type="submit">▣ Save Product</button>
+        </div>
+
+    </form>
+</div>
+
+<style>
+.top-actions, .bottom-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    max-width: 790px;
+    margin: 10px 0 22px 0;
+}
+
+.panel {
+    border: 3px solid #111;
+    margin: 22px 0;
+    padding: 16px;
+    background: #f4f4ef;
+    max-width: 760px;
+    box-shadow: 4px 4px 0 #111;
+}
+
+.panel-title {
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-bottom: 2px solid #111;
+    margin: -16px -16px 16px -16px;
+    padding: 12px 16px;
+    background: #e8e8df;
+}
+
+.right-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.form-row.three {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.field {
+    min-width: 0;
+}
+
+label {
+    display: block;
+    margin-top: 12px;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+input, select, textarea {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 6px;
+    margin-bottom: 8px;
+}
+
+textarea {
+    min-height: 120px;
+}
+
+.code-row, .unit-row {
+    display: flex;
+    align-items: stretch;
+}
+
+.code-row input,
+.unit-row input {
+    flex: 1;
+}
+
+.qr-btn,
+.unit-row span {
+    margin-top: 6px;
+    margin-bottom: 8px;
+    border: 2px solid #111;
+    border-left: 0;
+    min-width: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e8e8df;
+    color: #111;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.photo-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.photo-box {
+    width: 110px;
+    height: 110px;
+    border: 2px solid #111;
+    background:
+        linear-gradient(45deg, transparent 49%, #aaa 50%, transparent 51%),
+        linear-gradient(-45deg, transparent 49%, #aaa 50%, transparent 51%),
+        #eee;
+}
+
+@media (max-width: 800px) {
+    .form-row,
+    .form-row.three {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

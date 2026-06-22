@@ -1,0 +1,78 @@
+{% extends "inventory/base.html" %}
+{% load sort_tags %}
+{% block content %}
+<div class="page">
+
+    <div class="subtitle">Order Management</div>
+    <h1>Orders</h1>
+    <div>{{ orders|length }} records</div>
+
+    <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+        <a href="/orders/add/">
+            <button class="btn-dark" type="button">+ Add Order</button>
+        </a>
+    </div>
+
+    <form method="get" class="toolbar">
+        <input class="search" type="text" name="q" placeholder="Search by order code or customer..." value="{{ q }}">
+
+        <select name="payment_status">
+            <option value="">All Payments</option>
+            {% for s in payment_statuses %}
+                <option value="{{ s.0 }}" {% if payment_status == s.0 %}selected{% endif %}>
+                    {{ s.1 }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <button class="btn-green" type="submit">Filter</button>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>{% sort_link 'order_code' 'Order Code' %}</th>
+                <th>{% sort_link 'customer__name' 'Customer' %}</th>
+                <th>{% sort_link 'payment_status' 'Payment' %}</th>
+                <th>{% sort_link 'partial_sum' 'Total' %}</th>
+                <th>Currency</th>
+                <th>{% sort_link 'created_at' 'Created At' %}</th>
+                <th>Created By</th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for o in orders %}
+            <tr>
+                <td>
+                    <a class="code" href="/admin/inventory/order/{{ o.id }}/change/">
+                        <a class="code" href="/orders/{{ o.order_code }}/edit/"> {{ o.order_code }}</a>
+                    </a>
+                </td>
+                <td><b>{{ o.customer }}</b></td>
+                <td>
+                    <span class="status {{ o.payment_status }}">
+                        {{ o.payment_status }}
+                    </span>
+                </td>
+                <td><b>{{ o.partial_sum }}</b></td>
+                <td>EUR</td>
+                <td>{{ o.created_at|date:"Y-m-d" }}</td>
+                <td>{{ o.created_by }}</td>
+                <td>...</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="8">No orders found.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="border:3px solid #111; border-top:0; padding:18px; max-width:100%;">
+        SHOWING ALL {{ orders|length }} ORDERS
+    </div>
+
+</div>
+{% endblock %}

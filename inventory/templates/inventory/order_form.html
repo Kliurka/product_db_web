@@ -102,7 +102,64 @@
                         <th></th>
                     </tr>
                 </thead>
-                <tbody id="order-lines"></tbody>
+                <tbody id="order-lines">
+
+                {% if mode == 'edit' %}
+
+                {% for r in reserved_products %}
+                <tr class="order-line"
+                    data-price="{{ r.product.price }}">
+
+                    <td>
+                        <b>{{ r.product.code }}</b>
+                        <input
+                            type="hidden"
+                            name="products"
+                            value="{{ r.product.id }}">
+                    </td>
+
+                    <td>{{ r.product.name }}</td>
+
+                    <td>{{ r.product.texture }}</td>
+
+                    <td>{{ r.product.storage_location }}</td>
+
+                    <td>{{ r.product.price }}</td>
+
+                    <td>
+                        <input
+                            class="discount-input"
+                            name="line_discount"
+                            type="number"
+                            value="0">
+                    </td>
+
+                    <td>
+                        <input
+                            class="tax-input"
+                            name="line_tax"
+                            type="number"
+                            value="21">
+                    </td>
+
+                    <td>
+                        <b class="line-total">0.00</b>
+                    </td>
+
+                    <td>
+                        <button
+                            type="button"
+                            class="remove-line">
+                            ×
+                        </button>
+                    </td>
+
+                </tr>
+                {% endfor %}
+
+                {% endif %}
+
+                </tbody>
             </table>
         </div>
 
@@ -232,7 +289,7 @@ function recalcTotals() {
     document.getElementById("id_partial_sum").value = grandTotal.toFixed(2);
 }
 
-document.getElementById("add-product-btn").addEventListener("click", function () {
+    document.getElementById("add-product-btn").addEventListener("click", function () {
     const select = document.getElementById("product-select");
     const option = select.options[select.selectedIndex];
 
@@ -260,8 +317,8 @@ document.getElementById("add-product-btn").addEventListener("click", function ()
         <td>${texture}</td>
         <td>${location}</td>
         <td>${price.toFixed(2)}</td>
-        <td><input class="discount-input" type="number" min="0" max="100" step="0.01" value="0"></td>
-        <td><input class="tax-input" type="number" min="0" max="100" step="0.01" value="${defaultTax}"></td>
+        <td><input class="discount-input" name="line_discount" type="number" min="0" max="100" step="0.01" value="0"></td>
+        <td><input class="tax-input" name="line_tax" type="number" min="0" max="100" step="0.01" value="${defaultTax}"></td>
         <td><b class="line-total">0.00</b></td>
         <td><button type="button" class="remove-line">×</button></td>
     `;

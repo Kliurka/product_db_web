@@ -178,6 +178,95 @@ class Order(models.Model):
     def __str__(self):
         return self.order_code
 
+class OrderItem(models.Model):
+
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        db_column='order_id'
+    )
+
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        db_column='product_id'
+    )
+
+    product_code = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
+
+    product_name = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True
+    )
+
+    quantity = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=1
+    )
+
+    unit_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    discount_percent = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0
+    )
+
+    tax_percent = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=21
+    )
+
+    subtotal = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
+    discount_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
+    tax_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
+    total = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
+    created_at = models.DateTimeField(
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        db_table = 'order_items'
+
+    def __str__(self):
+        return f"{self.product_code} ({self.order.order_code})"
 
 class Payment(models.Model):
     PAYMENT_TYPE = [
@@ -209,7 +298,7 @@ class Reservation(models.Model):
         ('expired', 'Expired'),
     ]
 
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, db_column='order_id')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, db_column='product_id')
     reserved_at = models.DateTimeField(blank=True, null=True)
     reserved_by = models.ForeignKey(AppUser, on_delete=models.SET_NULL, blank=True, null=True, db_column='reserved_by')

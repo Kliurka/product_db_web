@@ -23,6 +23,8 @@ from .models import Reservation
 
 from django.shortcuts import get_object_or_404
 
+from decimal import Decimal
+from .models import OrderItem
 
 def product_list(request):
     products = Product.objects.all()
@@ -147,6 +149,47 @@ def order_list(request):
         'direction': direction,
     })
 
+def create_order_item_and_reservation(order, product, discount_percent, tax_percent):
+    unit_price = product.price or Decimal("0.00")
+    quantity = Decimal("1.00")
+
+    discount_percent = Decimal(str(discount_percent or 0))
+    tax_percent = Decimal(str(tax_percent or 0))
+
+    subtotal = unit_price * quantity
+    discount_amount = subtotal * discount_percent / Decimal("100")
+    taxable_sum = subtotal - discount_amount
+    tax_amount = taxable_sum * tax_percent / Decimal("100")
+    total = taxable_sum + tax_amount
+
+    OrderItem.objects.create(
+        order=order,
+        product=product,
+        product_code=product.code,
+        product_name=product.name,
+        quantity=quantity,
+        unit_price=unit_price,
+        discount_percent=discount_percent,
+        tax_percent=tax_percent,
+        subtotal=subtotal,
+        discount_amount=discount_amount,
+        tax_amount=tax_amount,
+        total=total,
+        created_at=timezone.now(),
+    )
+
+    Reservation.objects.create(
+        order=order,
+        product=product,
+        reserved_at=timezone.now(),
+        status='active'
+    )
+
+    product.status = 'reserved'
+    product.updated_at = timezone.now()
+    product.save()
+
+
 def order_add(request):
     products = Product.objects.filter(status='available').order_by('code')
 
@@ -164,20 +207,26 @@ def order_add(request):
             order.save()
 
             product_ids = request.POST.getlist('products')
+            discounts = request.POST.getlist('line_discount')
+            taxes = request.POST.getlist('line_tax')
 
-            for product_id in product_ids:
+            for index, product_id in enumerate(product_ids):
                 product = Product.objects.get(id=product_id)
 
-                Reservation.objects.create(
-                    order=order,
-                    product=product,
-                    reserved_at=timezone.now(),
-                    status='active'
+                discount_percent = discounts[index] if index < len(discounts) else 0
+                tax_percent = taxes[index] if index < len(taxes) else 21
+
+                create_order_item_and_reservation(
+                    order,
+                    product,
+                    discount_percent,
+                    tax_percent
                 )
 
-                product.status = 'reserved'
-                product.updated_at = timezone.now()
-                product.save()
+            order.partial_sum = sum(
+                item.total for item in OrderItem.objects.filter(order=order)
+            )
+            order.save()
 
             return redirect('order_list')
     else:
@@ -216,35 +265,55 @@ def product_edit(request, code):
     )
 
 def order_edit(request, order_code):
+    order = get_object_or_404(Order, order_code=order_code)
 
-    order = get_object_or_404(
-        Order,
-        order_code=order_code
-    )
+    reserved_products = Reservation.objects.filter(
+        order=order,
+        status='active'
+    ).select_related('product')
 
     if request.method == 'POST':
-
-        form = OrderForm(
-            request.POST,
-            instance=order
-        )
+        form = OrderForm(request.POST, instance=order)
 
         if form.is_valid():
-            form.save()
+            order = form.save()
+
+            old_product_ids = list(
+                reserved_products.values_list('product_id', flat=True)
+            )
+
+            for product_id in old_product_ids:
+                Product.objects.filter(id=product_id).update(status='available')
+
+            reserved_products.delete()
+
+            product_ids = request.POST.getlist('products')
+
+            for product_id in product_ids:
+                product = Product.objects.get(id=product_id)
+
+                Reservation.objects.create(
+                    order=order,
+                    product=product,
+                    reserved_at=timezone.now(),
+                    status='active'
+                )
+
+                product.status = 'reserved'
+                product.updated_at = timezone.now()
+                product.save()
 
             return redirect('order_list')
 
     else:
-        form = OrderForm(
-            instance=order
-        )
+        form = OrderForm(instance=order)
 
-    return render(
-        request,
-        'inventory/order_form.html',
-        {
-            'form': form,
-            'mode': 'edit',
-            'order': order,
-        }
-    )
+    products = Product.objects.filter(status='available').order_by('code')
+
+    return render(request, 'inventory/order_form.html', {
+        'form': form,
+        'mode': 'edit',
+        'order': order,
+        'products': products,
+        'reserved_products': reserved_products,
+    })

@@ -106,54 +106,35 @@
 
                 {% if mode == 'edit' %}
 
-                {% for r in reserved_products %}
-                <tr class="order-line"
-                    data-price="{{ r.product.price }}">
-
+                {% for item in order_items %}
+                <tr class="order-line" data-price="{{ item.unit_price }}">
                     <td>
-                        <b>{{ r.product.code }}</b>
-                        <input
-                            type="hidden"
-                            name="products"
-                            value="{{ r.product.id }}">
+                        <b>{{ item.product_code }}</b>
+                        {% if item.product %}
+                            <input type="hidden" name="products" value="{{ item.product.id }}">
+                        {% endif %}
                     </td>
 
-                    <td>{{ r.product.name }}</td>
-
-                    <td>{{ r.product.texture }}</td>
-
-                    <td>{{ r.product.storage_location }}</td>
-
-                    <td>{{ r.product.price }}</td>
+                    <td>{{ item.product_name }}</td>
+                    <td>{% if item.product %}{{ item.product.texture }}{% endif %}</td>
+                    <td>{% if item.product %}{{ item.product.storage_location }}{% endif %}</td>
+                    <td>{{ item.unit_price }}</td>
 
                     <td>
-                        <input
-                            class="discount-input"
-                            name="line_discount"
-                            type="number"
-                            value="0">
+                        <input class="discount-input" name="line_discount" type="number" value="{{ item.discount_percent }}">
                     </td>
 
                     <td>
-                        <input
-                            class="tax-input"
-                            name="line_tax"
-                            type="number"
-                            value="21">
+                        <input class="tax-input" name="line_tax" type="number" value="{{ item.tax_percent }}">
                     </td>
 
                     <td>
-                        <b class="line-total">0.00</b>
+                        <b class="line-total">{{ item.total }}</b>
                     </td>
 
                     <td>
-                        <button
-                            type="button"
-                            class="remove-line">
-                            ×
-                        </button>
+                        <button type="button" class="remove-line">×</button>
                     </td>
-
                 </tr>
                 {% endfor %}
 
@@ -358,6 +339,39 @@ document.querySelectorAll(".tax-preset").forEach(btn => {
         recalcTotals();
     });
 });
+
+window.addEventListener("load", function () {
+
+    productCount = document.querySelectorAll(".order-line").length;
+
+    document.getElementById("product-count").innerText =
+        productCount;
+
+    document.querySelectorAll(".discount-input").forEach(input => {
+        input.addEventListener("input", recalcTotals);
+    });
+
+    document.querySelectorAll(".tax-input").forEach(input => {
+        input.addEventListener("input", recalcTotals);
+    });
+
+    document.querySelectorAll(".remove-line").forEach(btn => {
+        btn.addEventListener("click", function () {
+
+            this.closest("tr").remove();
+
+            productCount--;
+
+            document.getElementById("product-count").innerText =
+                productCount;
+
+            recalcTotals();
+        });
+    });
+
+    recalcTotals();
+});
+
 </script>
 
 <style>

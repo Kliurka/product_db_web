@@ -1,17 +1,22 @@
 # Roadmap
 
-## v0.5
-- Customers
-- Storage Locations
-- Textures
+## Current milestone
 
-## v0.6
-- Users
-- Roles
+### Infrastructure
+- [x] Project structure
+- [x] Shared CSS
+- [x] Shared layout
+- [x] ERP UI Framework v1
 
-## v0.7
-- Product Photos
-- QR Labels
+### Customers
+- [ ] Customer List
+- [ ] Customer Form
+- [ ] Customer Search
+- [ ] Customer Filters
+- [ ] Customer Statistics
 
-## v1.0
-First production release
+### Storage
+- [ ] Storage Locations
+
+### Users
+- [ ] User Management

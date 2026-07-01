@@ -1,5 +1,5 @@
 from django import forms
-from .models import Product, Order, Discount
+from .models import Product, Order, Discount, Customer, AppUser
 
 
 class ProductForm(forms.ModelForm):
@@ -46,4 +46,29 @@ class OrderForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['partial_sum'].required = False
+
+
+class CustomerForm(forms.ModelForm):
+    class Meta:
+        model = Customer
+        fields = [
+            'name',
+            'address',
+            'phone',
+            'email',
+            'discount',
+            'tax',
+            'description',
+        ]
+
+
+class AppUserForm(forms.ModelForm):
+    class Meta:
+        model = AppUser
+        fields = [
+            'username',
+            'full_name',
+            'role',
+            'active',
+        ]
         

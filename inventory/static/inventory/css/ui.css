@@ -160,3 +160,40 @@ textarea {
 .order-line input {
     min-width: 70px;
 }
+
+.toolbar .search {
+    flex: 1;
+    min-width: 260px;
+}
+
+.toolbar input,
+.toolbar select {
+    width: auto;
+}
+
+.toolbar .search {
+    width: 100%;
+}
+
+.toolbar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.toolbar form {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.toolbar .search {
+    flex: 1 1 auto;
+    min-width: 320px;
+    width: auto !important;
+}
+
+.toolbar select,
+.toolbar button {
+    width: auto !important;
+}

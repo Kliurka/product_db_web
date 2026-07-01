@@ -1,0 +1,121 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+
+{% load sort_tags %}
+
+<div class="page">
+
+    <div class="subtitle">
+        Customer Management / Customers
+    </div>
+
+    <h1>Customer List</h1>
+
+    <div class="toolbar">
+
+        <form method="get" class="toolbar">
+            <input class="search" type="text" name="q" placeholder="Search customer..." value="{{ q }}">
+
+            <select name="discount">
+                <option value="">All Discounts</option>
+                {% for d in discounts %}
+                    <option value="{{ d.id }}" {% if selected_discount == d.id|stringformat:"s" %}selected{% endif %}>
+                        {{ d.name }} — {{ d.percent }}%
+                    </option>
+                {% endfor %}
+            </select>
+
+            <select name="tax">
+                <option value="">All Taxes</option>
+                {% for t in taxes %}
+                    <option value="{{ t.id }}" {% if selected_tax == t.id|stringformat:"s" %}selected{% endif %}>
+                        {{ t.name }} — {{ t.percent }}%
+                    </option>
+                {% endfor %}
+            </select>
+
+            <select name="has_orders">
+                <option value="">All Orders</option>
+                <option value="yes" {% if has_orders == 'yes' %}selected{% endif %}>Has Orders</option>
+                <option value="no" {% if has_orders == 'no' %}selected{% endif %}>No Orders</option>
+            </select>
+
+            <button class="btn-green" type="submit">Filter</button>
+
+            <a href="{% url 'customer_add' %}">
+                <button class="btn-dark" type="button">+ Add Customer</button>
+            </a>
+        </form>
+
+    </div>
+
+    <table>
+
+        <thead>
+        <tr>
+            <th>{% sort_link 'name' 'Name' %}</th>
+            <th>{% sort_link 'phone' 'Phone' %}</th>
+            <th>{% sort_link 'email' 'Email' %}</th>
+            <th>{% sort_link 'discount__percent' 'Discount' %}</th>
+            <th>{% sort_link 'tax__percent' 'Tax' %}</th>
+            <th>{% sort_link 'orders_count' 'Orders' %}</th>
+        </tr>
+        </thead>
+
+        <tbody>
+
+        {% for customer in customers %}
+
+        <tr>
+
+            <td>
+                <a href="{% url 'customer_edit' customer.id %}">
+                    {{ customer.name }}
+                </a>
+            </td>
+
+            <td>{{ customer.phone }}</td>
+
+            <td>{{ customer.email }}</td>
+
+            <td>
+                {% if customer.discount %}
+                    {{ customer.discount.percent }} %
+                {% endif %}
+            </td>
+
+            <td>
+                {% if customer.tax %}
+                    {{ customer.tax.percent }} %
+                {% endif %}
+            </td>
+
+            <td>
+                    {{ customer.orders_count }}
+            </td>
+
+
+        </tr>
+
+        {% empty %}
+
+        <tr>
+
+            <td colspan="6">
+
+                No customers.
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

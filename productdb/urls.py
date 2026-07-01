@@ -17,7 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from inventory import views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('inventory.urls')),
+    path('customers/', views.customer_list, name='customer_list'),
+    path('customers/add/', views.customer_add, name='customer_add'),
+    path('customers/<int:customer_id>/edit/', views.customer_edit, name='customer_edit'),
 ]

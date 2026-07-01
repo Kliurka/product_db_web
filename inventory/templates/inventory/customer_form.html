@@ -1,0 +1,87 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="page">
+
+    <div class="subtitle">Customer Management / Customers</div>
+
+    {% if mode == 'edit' %}
+        <h1>Edit Customer</h1>
+    {% else %}
+        <h1>Add Customer</h1>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="top-actions">
+            <a href="{% url 'customer_list' %}">
+                <button type="button">× Cancel</button>
+            </a>
+            <button type="reset">↻ Reset</button>
+            <button class="btn-dark" type="submit">▣ Save Customer</button>
+        </div>
+
+        <div class="erp-panel">
+            <div class="erp-panel-title">01 — Identity</div>
+
+            <label>Name *</label>
+            {{ form.name }}
+        </div>
+
+        <div class="erp-panel">
+            <div class="erp-panel-title">02 — Contact</div>
+
+            <label>Address</label>
+            {{ form.address }}
+
+            <label>Phone</label>
+            {{ form.phone }}
+
+            <label>Email</label>
+            {{ form.email }}
+        </div>
+
+        <div class="erp-panel">
+            <div class="erp-panel-title">03 — Financial</div>
+
+            <label>Discount</label>
+            {{ form.discount }}
+
+            <label>Tax</label>
+            {{ form.tax }}
+        </div>
+
+        <div class="erp-panel">
+            <div class="erp-panel-title">04 — Notes</div>
+
+            <label>Description</label>
+            {{ form.description }}
+        </div>
+
+        <div class="erp-panel">
+            <div class="erp-panel-title">05 — Audit Trail</div>
+
+            <div class="form-row">
+                <div class="field">
+                    <label>Created At</label>
+                    <input type="text" value="auto" disabled>
+                </div>
+
+                <div class="field">
+                    <label>Updated At</label>
+                    <input type="text" value="auto" disabled>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-actions">
+            <a href="{% url 'customer_list' %}">
+                <button type="button">× Cancel</button>
+            </a>
+            <button class="btn-dark" type="submit">▣ Save Customer</button>
+        </div>
+
+    </form>
+</div>
+{% endblock %}

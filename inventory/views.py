@@ -35,6 +35,9 @@ from .models import Discount, Tax
 from .models import StorageLocation
 from .forms import StorageLocationForm
 
+from .models import Texture
+from .forms import TextureForm
+
 
 def product_list(request):
     products = Product.objects.all()
@@ -484,4 +487,52 @@ def storage_edit(request, storage_id):
         'form': form,
         'mode': 'edit',
         'storage': storage,
+    })
+
+
+def texture_list(request):
+    textures = Texture.objects.all().order_by('name')
+
+    q = request.GET.get('q', '')
+    if q:
+        textures = textures.filter(name__icontains=q)
+
+    return render(request, 'inventory/texture_list.html', {
+        'textures': textures,
+        'q': q,
+    })
+
+
+def texture_add(request):
+    if request.method == 'POST':
+        form = TextureForm(request.POST)
+
+        if form.is_valid():
+            texture = form.save()
+            return redirect('texture_edit', texture_id=texture.id)
+    else:
+        form = TextureForm()
+
+    return render(request, 'inventory/texture_form.html', {
+        'form': form,
+        'mode': 'add',
+    })
+
+
+def texture_edit(request, texture_id):
+    texture = get_object_or_404(Texture, id=texture_id)
+
+    if request.method == 'POST':
+        form = TextureForm(request.POST, instance=texture)
+
+        if form.is_valid():
+            form.save()
+            return redirect('texture_list')
+    else:
+        form = TextureForm(instance=texture)
+
+    return render(request, 'inventory/texture_form.html', {
+        'form': form,
+        'mode': 'edit',
+        'texture': texture,
     })

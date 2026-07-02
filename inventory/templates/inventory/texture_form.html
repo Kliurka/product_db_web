@@ -1,0 +1,115 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="page">
+
+    <div class="subtitle">Master Data / Textures</div>
+
+    {% if mode == 'edit' %}
+        <h1>Edit Texture</h1>
+    {% else %}
+        <h1>Add Texture</h1>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="top-actions">
+            <a href="{% url 'texture_list' %}">
+                <button type="button">× Cancel</button>
+            </a>
+
+            <button type="reset">
+                ↻ Reset
+            </button>
+
+            <button class="btn-dark" type="submit">
+                ▣ Save Texture
+            </button>
+        </div>
+
+        <div class="erp-panel">
+
+            <div class="erp-panel-title">
+                01 — Texture
+            </div>
+
+            <label>Name *</label>
+            {{ form.name }}
+
+        </div>
+
+        <div class="erp-panel">
+
+            <div class="erp-panel-title">
+                02 — Preview Image
+            </div>
+
+            <label>Image URL</label>
+            {{ form.image_url }}
+
+            <div class="erp-help">
+                Future version will support image upload and camera capture.
+            </div>
+
+        </div>
+
+        <div class="erp-panel">
+
+            <div class="erp-panel-title">
+                03 — Preview
+            </div>
+
+            {% if mode == 'edit' and texture.image_url %}
+                <img
+                    src="{{ texture.image_url }}"
+                    alt="{{ texture.name }}"
+                    style="max-width:220px;border:2px solid #111;">
+            {% else %}
+                <div class="center-note">
+                    No preview available.
+                </div>
+            {% endif %}
+
+        </div>
+
+        <div class="erp-panel">
+
+            <div class="erp-panel-title">
+                04 — Audit Trail
+            </div>
+
+            <div class="form-row">
+
+                <div class="field">
+                    <label>Created At</label>
+                    <input type="text" value="auto" disabled>
+                </div>
+
+                <div class="field">
+                    <label>Updated At</label>
+                    <input type="text" value="auto" disabled>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="bottom-actions">
+
+            <a href="{% url 'texture_list' %}">
+                <button type="button">
+                    × Cancel
+                </button>
+            </a>
+
+            <button class="btn-dark" type="submit">
+                ▣ Save Texture
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+{% endblock %}

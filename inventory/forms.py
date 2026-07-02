@@ -1,5 +1,5 @@
 from django import forms
-from .models import Product, Order, Discount, Customer, AppUser, StorageLocation
+from .models import Product, Order, Discount, Customer, AppUser, StorageLocation, Texture
 
 
 class ProductForm(forms.ModelForm):
@@ -82,3 +82,14 @@ class StorageLocationForm(forms.ModelForm):
             'position',
             'description',
         ]
+
+
+class TextureForm(forms.ModelForm):
+    class Meta:
+        model = Texture
+        fields = [
+            'name',
+            'image_url',
+        ]
+
+

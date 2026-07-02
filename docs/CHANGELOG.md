@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.5.1
+
+### Added
+
+- Storage Location List
+- Storage Location Add/Edit
+- Search
+- Sorting
+- ERP Storage UI
+
 ## v0.4.1
 
 ### Infrastructure

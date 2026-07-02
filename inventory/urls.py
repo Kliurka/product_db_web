@@ -22,4 +22,8 @@ urlpatterns = [
     path('storage/', views.storage_list, name='storage_list'),
     path('storage/add/', views.storage_add, name='storage_add'),
     path('storage/<int:storage_id>/edit/', views.storage_edit, name='storage_edit'),
+    
+    path('textures/', views.texture_list, name='texture_list'),
+    path('textures/add/', views.texture_add, name='texture_add'),
+    path('textures/<int:texture_id>/edit/', views.texture_edit, name='texture_edit'),
 ]

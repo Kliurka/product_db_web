@@ -18,4 +18,8 @@ urlpatterns = [
     path('customers/', views.customer_list, name='customer_list'),
     path('customers/add/', views.customer_add, name='customer_add'),
     path('customers/<int:customer_id>/edit/', views.customer_edit, name='customer_edit'),
+    
+    path('storage/', views.storage_list, name='storage_list'),
+    path('storage/add/', views.storage_add, name='storage_add'),
+    path('storage/<int:storage_id>/edit/', views.storage_edit, name='storage_edit'),
 ]

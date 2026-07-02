@@ -1,0 +1,112 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="page">
+
+    <div class="subtitle">Master Data / Storage Locations</div>
+
+    {% if mode == 'edit' %}
+        <h1>Edit Storage Location</h1>
+    {% else %}
+        <h1>Add Storage Location</h1>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="top-actions">
+            <a href="{% url 'storage_list' %}">
+                <button type="button">× Cancel</button>
+            </a>
+            <button type="reset">↻ Reset</button>
+            <button class="btn-dark" type="submit">▣ Save Storage Location</button>
+        </div>
+
+        <div class="erp-panel">
+            <div class="erp-panel-title">01 — Storage Location</div>
+
+            <div class="form-row three">
+
+                <div class="field">
+                    <label>Sector *</label>
+                    {{ form.sector }}
+                </div>
+
+                <div class="field">
+                    <label>Number *</label>
+                    {{ form.number }}
+                </div>
+
+                <div class="field">
+                    <label>Position *</label>
+                    {{ form.position }}
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="erp-panel">
+
+            <div class="erp-panel-title">02 — Description</div>
+
+            <label>Description</label>
+            {{ form.description }}
+
+        </div>
+
+        <div class="erp-panel">
+
+            <div class="erp-panel-title">03 — Statistics</div>
+
+            <div class="form-row">
+
+                <div class="field">
+                    <label>Products Stored</label>
+
+                    {% if mode == 'edit' %}
+                        <input type="text" value="Coming soon" disabled>
+                    {% else %}
+                        <input type="text" value="0" disabled>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="erp-panel">
+
+            <div class="erp-panel-title">04 — Audit Trail</div>
+
+            <div class="form-row">
+
+                <div class="field">
+                    <label>Created At</label>
+                    <input type="text" value="auto" disabled>
+                </div>
+
+                <div class="field">
+                    <label>Updated At</label>
+                    <input type="text" value="auto" disabled>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="bottom-actions">
+            <a href="{% url 'storage_list' %}">
+                <button type="button">× Cancel</button>
+            </a>
+
+            <button class="btn-dark" type="submit">
+                ▣ Save Storage Location
+            </button>
+        </div>
+
+    </form>
+
+</div>
+{% endblock %}

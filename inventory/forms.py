@@ -1,5 +1,5 @@
 from django import forms
-from .models import Product, Order, Discount, Customer, AppUser
+from .models import Product, Order, Discount, Customer, AppUser, StorageLocation
 
 
 class ProductForm(forms.ModelForm):
@@ -71,4 +71,14 @@ class AppUserForm(forms.ModelForm):
             'role',
             'active',
         ]
+
         
+class StorageLocationForm(forms.ModelForm):
+    class Meta:
+        model = StorageLocation
+        fields = [
+            'sector',
+            'number',
+            'position',
+            'description',
+        ]

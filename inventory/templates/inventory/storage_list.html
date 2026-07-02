@@ -1,0 +1,55 @@
+{% extends "inventory/base.html" %}
+{% load sort_tags %}
+
+{% block content %}
+<div class="page">
+
+    <div class="subtitle">Master Data / Storage Locations</div>
+
+    <h1>Storage Locations</h1>
+
+    <form method="get" class="toolbar">
+        <input class="search" type="text" name="q" placeholder="Search storage..." value="{{ q }}">
+
+        <button class="btn-green" type="submit">Search</button>
+
+        <a href="{% url 'storage_add' %}">
+            <button class="btn-dark" type="button">+ Add Storage</button>
+        </a>
+    </form>
+
+    <table>
+        <thead>
+        <tr>
+            <th>{% sort_link 'sector' 'Sector' %}</th>
+            <th>{% sort_link 'number' 'Number' %}</th>
+            <th>{% sort_link 'position' 'Position' %}</th>
+            <th>Products</th>
+            <th>Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for storage in storage_locations %}
+        <tr>
+            <td>
+                <a href="{% url 'storage_edit' storage.id %}">
+                    {{ storage.sector }}
+                </a>
+            </td>
+
+            <td>{{ storage.number }}</td>
+            <td>{{ storage.position }}</td>
+            <td>—</td>
+            <td>{{ storage.description }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">No storage locations.</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}

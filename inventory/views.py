@@ -32,6 +32,10 @@ from .forms import CustomerForm, AppUserForm
 from django.db.models import Count
 from .models import Discount, Tax
 
+from .models import StorageLocation
+from .forms import StorageLocationForm
+
+
 def product_list(request):
     products = Product.objects.all()
 
@@ -419,4 +423,65 @@ def customer_edit(request, customer_id):
         'form': form,
         'mode': 'edit',
         'customer': customer,
+    })
+
+
+def storage_list(request):
+    storage_locations = StorageLocation.objects.all().order_by(
+        'sector',
+        'number',
+        'position'
+    )
+
+    q = request.GET.get('q', '')
+
+    if q:
+        storage_locations = storage_locations.filter(
+            sector__icontains=q
+        ) | StorageLocation.objects.filter(
+            number__icontains=q
+        ) | StorageLocation.objects.filter(
+            position__icontains=q
+        ) | StorageLocation.objects.filter(
+            description__icontains=q
+        )
+
+    return render(request, 'inventory/storage_list.html', {
+        'storage_locations': storage_locations,
+        'q': q,
+    })
+
+
+def storage_add(request):
+    if request.method == 'POST':
+        form = StorageLocationForm(request.POST)
+
+        if form.is_valid():
+            storage = form.save()
+            return redirect('storage_edit', storage_id=storage.id)
+    else:
+        form = StorageLocationForm()
+
+    return render(request, 'inventory/storage_form.html', {
+        'form': form,
+        'mode': 'add',
+    })
+
+
+def storage_edit(request, storage_id):
+    storage = get_object_or_404(StorageLocation, id=storage_id)
+
+    if request.method == 'POST':
+        form = StorageLocationForm(request.POST, instance=storage)
+
+        if form.is_valid():
+            form.save()
+            return redirect('storage_list')
+    else:
+        form = StorageLocationForm(instance=storage)
+
+    return render(request, 'inventory/storage_form.html', {
+        'form': form,
+        'mode': 'edit',
+        'storage': storage,
     })

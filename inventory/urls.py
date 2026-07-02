@@ -26,4 +26,8 @@ urlpatterns = [
     path('textures/', views.texture_list, name='texture_list'),
     path('textures/add/', views.texture_add, name='texture_add'),
     path('textures/<int:texture_id>/edit/', views.texture_edit, name='texture_edit'),
+
+    path('users/', views.user_list, name='user_list'),
+    path('users/add/', views.user_add, name='user_add'),
+    path('users/<int:user_id>/edit/', views.user_edit, name='user_edit'),
 ]

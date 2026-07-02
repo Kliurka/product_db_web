@@ -1,0 +1,99 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="page">
+
+    <div class="subtitle">System / Users</div>
+
+    {% if mode == 'edit' %}
+        <h1>Edit User</h1>
+    {% else %}
+        <h1>Add User</h1>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="top-actions">
+            <a href="{% url 'user_list' %}">
+                <button type="button">× Cancel</button>
+            </a>
+            <button type="reset">↻ Reset</button>
+            <button class="btn-dark" type="submit">▣ Save User</button>
+        </div>
+
+        <div class="erp-panel">
+            <div class="erp-panel-title">01 — Account</div>
+
+            <div class="form-row">
+                <div class="field">
+                    <label>Username *</label>
+                    {{ form.username }}
+                </div>
+
+                <div class="field">
+                    <label>Status</label>
+                    {{ form.active }}
+                </div>
+            </div>
+        </div>
+
+        <div class="erp-panel">
+            <div class="erp-panel-title">02 — User Details</div>
+
+            <div class="form-row">
+                <div class="field">
+                    <label>Full Name</label>
+                    {{ form.full_name }}
+                </div>
+
+                <div class="field">
+                    <label>Role</label>
+                    {{ form.role }}
+                </div>
+            </div>
+        </div>
+
+        <div class="erp-panel">
+            <div class="erp-panel-title">03 — Login</div>
+
+            {% if mode == 'edit' and app_user.last_login %}
+                <label>Last Login</label>
+                <input type="text" value="{{ app_user.last_login|date:'Y-m-d H:i' }}" disabled>
+            {% else %}
+                <label>Last Login</label>
+                <input type="text" value="Never" disabled>
+            {% endif %}
+
+            <div class="erp-help">
+                Password management will be added later with Django authentication.
+            </div>
+        </div>
+
+        <div class="erp-panel">
+            <div class="erp-panel-title">04 — Audit Trail</div>
+
+            <div class="form-row">
+                <div class="field">
+                    <label>Created At</label>
+                    <input type="text" value="auto" disabled>
+                </div>
+
+                <div class="field">
+                    <label>Updated At</label>
+                    <input type="text" value="auto" disabled>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-actions">
+            <a href="{% url 'user_list' %}">
+                <button type="button">× Cancel</button>
+            </a>
+            <button class="btn-dark" type="submit">▣ Save User</button>
+        </div>
+
+    </form>
+
+</div>
+{% endblock %}

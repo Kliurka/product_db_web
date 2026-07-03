@@ -125,33 +125,7 @@
             <small>Accepted formats: JPG, PNG, WEBP — max 8 MB per file</small>
         </div>
 
-        <div class="erp-panel">
-            <div class="erp-panel-title">06 — Audit Trail</div>
-
-            <div class="form-row">
-                <div class="field">
-                    <label>Created At *</label>
-                    <input type="text" value="auto" disabled>
-                </div>
-
-                <div class="field">
-                    <label>Created By *</label>
-                    <input type="text" value="{{ request.user.username }}" disabled>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="field">
-                    <label>Updated At *</label>
-                    <input type="text" value="auto" disabled>
-                </div>
-
-                <div class="field">
-                    <label>Updated By *</label>
-                    <input type="text" value="{{ request.user.username }}" disabled>
-                </div>
-            </div>
-        </div>
+        {% include "components/audit_panel_full.html" %}
 
         <div class="bottom-actions">
             <a href="/products/"><button type="button">× Cancel</button></a>

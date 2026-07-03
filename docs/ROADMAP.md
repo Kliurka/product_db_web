@@ -1,22 +1,37 @@
-# Roadmap
+# Stone Factory ERP Roadmap
 
-## Current milestone
+## Phase 1 — Core Modules ✅
+- Products
+- Customers
+- Storage Locations
+- Textures
+- Users
+- Orders
+- Reservations
 
-### Infrastructure
-- [x] Project structure
-- [x] Shared CSS
-- [x] Shared layout
-- [x] ERP UI Framework v1
+## Phase 2 — Stable Core (M1) 🔄
+- ERP UI Framework v2
+- Reusable UI components
+- UI consistency
+- CSS cleanup
+- Code cleanup
 
-### Customers
-- [ ] Customer List
-- [ ] Customer Form
-- [ ] Customer Search
-- [ ] Customer Filters
-- [ ] Customer Statistics
+## Phase 3 — Architecture (M2)
+- Split views.py
+- Common utilities
+- Shared filters/sorting
 
-### Storage
-- [ ] Storage Locations
+## Phase 4 — Business Logic (M3)
+- Service layer
+- Order calculations
+- QR services
+- Pricing engine
 
-### Users
-- [ ] User Management
+## Phase 5 — Production (M4)
+- Dashboard
+- Reports
+- Suppliers
+- Payments
+- Invoices
+- Authentication
+- Production planning

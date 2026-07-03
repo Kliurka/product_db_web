@@ -156,4 +156,25 @@ Reports (future)
 
 ---------------------------------------
 
+## Components Policy
+
+Reusable components should represent complete UI blocks.
+
+Good examples:
+
+- Page Header
+- Search Toolbar
+- Audit Panel
+- Form Actions
+
+Avoid creating components for small HTML fragments such as:
+
+- Panels
+- Labels
+- Form rows
+- Individual fields
+
+Readability is more important than reducing a few lines of HTML.
+
+
 This document defines the UI standard for the entire Stone Factory ERP project.

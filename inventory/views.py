@@ -1,43 +1,36 @@
-import qrcode
+from decimal import Decimal
 from io import BytesIO
 
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-
-from .models import Product
-from django.shortcuts import render
-
-from .models import ProductType
-
-from .forms import ProductForm
-from django.shortcuts import redirect
-
-from django.db.models import Sum
-from .models import Order
-
-from .forms import ProductForm, OrderForm
-from .models import ProductType, Order, Product
-
-from django.utils import timezone
-from .models import Reservation
-
-from django.shortcuts import get_object_or_404
-
-from decimal import Decimal
-from .models import OrderItem
-
-from .models import Customer, AppUser
-from .forms import CustomerForm, AppUserForm
+import qrcode
 
 from django.db.models import Count
-from .models import Discount, Tax
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 
-from .models import StorageLocation
-from .forms import StorageLocationForm
+from .forms import (
+    AppUserForm,
+    CustomerForm,
+    OrderForm,
+    ProductForm,
+    StorageLocationForm,
+    TextureForm,
+)
 
-from .models import Texture
-from .forms import TextureForm
-
+from .models import (
+    AppUser,
+    Customer,
+    Discount,
+    Order,
+    OrderItem,
+    Product,
+    ProductType,
+    Reservation,
+    StorageLocation,
+    Tax,
+    Texture,
+    Role,
+)
 
 def product_list(request):
     products = Product.objects.all()

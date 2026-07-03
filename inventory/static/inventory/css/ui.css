@@ -161,19 +161,6 @@ textarea {
     min-width: 70px;
 }
 
-.toolbar .search {
-    flex: 1;
-    min-width: 260px;
-}
-
-.toolbar input,
-.toolbar select {
-    width: auto;
-}
-
-.toolbar .search {
-    width: 100%;
-}
 
 .toolbar {
     display: flex;

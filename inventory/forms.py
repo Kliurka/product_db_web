@@ -13,13 +13,15 @@ from .models import (
 class BaseERPForm(forms.ModelForm):
     """
     Base form for Stone Factory ERP forms.
-
-    Reserved for shared form behavior:
-    - common widgets
-    - CSS classes
-    - validation helpers
+    Applies common widget styling.
     """
-    pass
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field in self.fields.values():
+            css = field.widget.attrs.get("class", "")
+            field.widget.attrs["class"] = (css + " erp-input").strip()
 
 class ProductForm(BaseERPForm):
     class Meta:

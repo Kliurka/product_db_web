@@ -32,6 +32,10 @@ from .models import (
     Role,
 )
 
+# -------------------------
+# Products
+# -------------------------
+
 def product_list(request):
     products = Product.objects.all()
 
@@ -124,6 +128,10 @@ def product_add(request):
         'form': form,
         'mode': 'add',
     })
+
+# -------------------------
+# Orders
+# -------------------------
     
 def order_list(request):
     orders = Order.objects.all()
@@ -332,6 +340,10 @@ def order_edit(request, order_code):
     })
     
 
+# -------------------------
+# Customers
+# -------------------------
+
 def customer_list(request):
     customers = Customer.objects.annotate(
         orders_count=Count('order')
@@ -422,6 +434,10 @@ def customer_edit(request, customer_id):
     })
 
 
+# -------------------------
+# Storage Locations
+# -------------------------
+
 def storage_list(request):
     storage_locations = StorageLocation.objects.all().order_by(
         'sector',
@@ -483,6 +499,10 @@ def storage_edit(request, storage_id):
     })
 
 
+# -------------------------
+# Textures
+# -------------------------
+
 def texture_list(request):
     textures = Texture.objects.all().order_by('name')
 
@@ -531,7 +551,9 @@ def texture_edit(request, texture_id):
     })
 
 
-from .models import Role
+# -------------------------
+# Users
+# -------------------------
 
 def user_list(request):
     users = AppUser.objects.select_related('role')

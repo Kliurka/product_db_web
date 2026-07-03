@@ -10,8 +10,18 @@ from .models import (
     Texture,
 )
 
+class BaseERPForm(forms.ModelForm):
+    """
+    Base form for Stone Factory ERP forms.
 
-class ProductForm(forms.ModelForm):
+    Reserved for shared form behavior:
+    - common widgets
+    - CSS classes
+    - validation helpers
+    """
+    pass
+
+class ProductForm(BaseERPForm):
     class Meta:
         model = Product
         fields = [
@@ -28,7 +38,7 @@ class ProductForm(forms.ModelForm):
         ]
 
 
-class OrderForm(forms.ModelForm):
+class OrderForm(BaseERPForm):
     discount = forms.ModelChoiceField(
         queryset=Discount.objects.all(),
         required=False,
@@ -57,7 +67,7 @@ class OrderForm(forms.ModelForm):
         self.fields['partial_sum'].required = False
 
 
-class CustomerForm(forms.ModelForm):
+class CustomerForm(BaseERPForm):
     class Meta:
         model = Customer
         fields = [
@@ -71,7 +81,7 @@ class CustomerForm(forms.ModelForm):
         ]
 
 
-class StorageLocationForm(forms.ModelForm):
+class StorageLocationForm(BaseERPForm):
     class Meta:
         model = StorageLocation
         fields = [
@@ -82,7 +92,7 @@ class StorageLocationForm(forms.ModelForm):
         ]
 
 
-class TextureForm(forms.ModelForm):
+class TextureForm(BaseERPForm):
     class Meta:
         model = Texture
         fields = [
@@ -91,7 +101,7 @@ class TextureForm(forms.ModelForm):
         ]
 
 
-class AppUserForm(forms.ModelForm):
+class AppUserForm(BaseERPForm):
     class Meta:
         model = AppUser
         fields = [

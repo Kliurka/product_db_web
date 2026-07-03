@@ -76,25 +76,8 @@
 
         </div>
 
-        <div class="erp-panel">
 
-            <div class="erp-panel-title">04 — Audit Trail</div>
-
-            <div class="form-row">
-
-                <div class="field">
-                    <label>Created At</label>
-                    <input type="text" value="auto" disabled>
-                </div>
-
-                <div class="field">
-                    <label>Updated At</label>
-                    <input type="text" value="auto" disabled>
-                </div>
-
-            </div>
-
-        </div>
+        {% include "components/forms/audit_panel_simple.html" %}
 
         <div class="bottom-actions">
             <a href="{% url 'storage_list' %}">

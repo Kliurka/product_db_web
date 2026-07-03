@@ -14,13 +14,8 @@
     <form method="post">
         {% csrf_token %}
 
-        <div class="top-actions">
-            <a href="{% url 'storage_list' %}">
-                <button type="button">× Cancel</button>
-            </a>
-            <button type="reset">↻ Reset</button>
-            <button class="btn-dark" type="submit">▣ Save Storage Location</button>
-        </div>
+        {% url 'storage_list' as cancel_url %}
+        {% include "components/forms/form_actions_top.html" with cancel_url=cancel_url object_name="Storage Location" %}
 
         <div class="erp-panel">
             <div class="erp-panel-title">01 — Storage Location</div>
@@ -79,15 +74,8 @@
 
         {% include "components/forms/audit_panel_simple.html" %}
 
-        <div class="bottom-actions">
-            <a href="{% url 'storage_list' %}">
-                <button type="button">× Cancel</button>
-            </a>
-
-            <button class="btn-dark" type="submit">
-                ▣ Save Storage Location
-            </button>
-        </div>
+        {% url 'storage_list' as cancel_url %}
+        {% include "components/forms/form_actions_bottom.html" with cancel_url=cancel_url object_name="Storage Location" %}
 
     </form>
 

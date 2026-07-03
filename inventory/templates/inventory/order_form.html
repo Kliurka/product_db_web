@@ -19,10 +19,8 @@
             </div>
         {% endif %}
 
-        <div class="top-actions">
-            <a href="/orders/"><button type="button">× Cancel</button></a>
-            <button class="btn-dark" type="submit">▣ Save Order</button>
-        </div>
+        {% url 'order_list' as cancel_url %}
+        {% include "components/forms/form_actions_top.html" with cancel_url=cancel_url object_name="Order" %}
 
         <div class="erp-panel">
             <div class="erp-panel-title">01 — Order Header</div>
@@ -197,10 +195,8 @@
 
         {% include "components/forms/audit_panel_full.html" %}
 
-        <div class="bottom-actions">
-            <a href="/orders/"><button type="button">× Cancel</button></a>
-            <button class="btn-dark" type="submit">▣ Save Order</button>
-        </div>
+        {% url 'order_list' as cancel_url %}
+        {% include "components/forms/form_actions_bottom.html" with cancel_url=cancel_url object_name="Order" %}
     </form>
 </div>
 

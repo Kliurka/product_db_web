@@ -15,11 +15,8 @@
     <form method="post">
         {% csrf_token %}
 
-        <div class="top-actions">
-            <a href="/products/"><button type="button">× Cancel</button></a>
-            <button type="reset">↻ Reset</button>
-            <button class="btn-dark" type="submit">▣ Save Product</button>
-        </div>
+        {% url 'product_list' as cancel_url %}
+        {% include "components/forms/form_actions_top.html" with cancel_url=cancel_url object_name="Product" %}
 
         <div class="erp-panel">
             <div class="erp-panel-title">01 — Identity</div>
@@ -127,10 +124,8 @@
 
         {% include "components/forms/audit_panel_full.html" %}
 
-        <div class="bottom-actions">
-            <a href="/products/"><button type="button">× Cancel</button></a>
-            <button class="btn-dark" type="submit">▣ Save Product</button>
-        </div>
+        {% url 'product_list' as cancel_url %}
+        {% include "components/forms/form_actions_bottom.html" with cancel_url=cancel_url object_name="Product" %}
 
     </form>
 </div>

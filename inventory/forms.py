@@ -1,5 +1,14 @@
 from django import forms
-from .models import Product, Order, Discount, Customer, AppUser, StorageLocation, Texture
+
+from .models import (
+    Product,
+    Order,
+    Discount,
+    Customer,
+    AppUser,
+    StorageLocation,
+    Texture,
+)
 
 
 class ProductForm(forms.ModelForm):
@@ -17,20 +26,19 @@ class ProductForm(forms.ModelForm):
             'price',
             'status',
         ]
-from .models import Order
 
 
 class OrderForm(forms.ModelForm):
     discount = forms.ModelChoiceField(
         queryset=Discount.objects.all(),
         required=False,
-        label="Customer Discount"
+        label='Customer Discount',
     )
 
     product = forms.ModelChoiceField(
         queryset=Product.objects.filter(status='available').order_by('code'),
         required=False,
-        label="Select Product"
+        label='Select Product',
     )
 
     class Meta:
@@ -42,9 +50,10 @@ class OrderForm(forms.ModelForm):
             'partial_sum',
             'description',
         ]
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.fields['partial_sum'].required = False
 
 
@@ -62,17 +71,6 @@ class CustomerForm(forms.ModelForm):
         ]
 
 
-class AppUserForm(forms.ModelForm):
-    class Meta:
-        model = AppUser
-        fields = [
-            'username',
-            'full_name',
-            'role',
-            'active',
-        ]
-
-        
 class StorageLocationForm(forms.ModelForm):
     class Meta:
         model = StorageLocation
@@ -93,3 +91,12 @@ class TextureForm(forms.ModelForm):
         ]
 
 
+class AppUserForm(forms.ModelForm):
+    class Meta:
+        model = AppUser
+        fields = [
+            'username',
+            'full_name',
+            'role',
+            'active',
+        ]

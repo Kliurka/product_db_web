@@ -10,6 +10,14 @@ from .models import (
     Texture,
 )
 
+from inventory.utils.images import process_uploaded_image
+
+
+CAMERA_FILE_INPUT = forms.FileInput(attrs={
+    "accept": "image/*",
+    "capture": "environment",
+})
+
 class BaseERPForm(forms.ModelForm):
     """
     Base form for Stone Factory ERP forms.
@@ -99,8 +107,27 @@ class TextureForm(BaseERPForm):
         model = Texture
         fields = [
             'name',
-            'image_url',
+            'image',
         ]
+
+        widgets = {
+            'image': forms.FileInput(attrs={
+                'accept': 'image/*',
+                'capture': 'environment',
+            }),
+        }
+
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+
+        if not image:
+            return image
+
+        return process_uploaded_image(
+            image,
+            size=(800, 800),
+            filename_prefix=self.cleaned_data.get('name') or 'texture',
+        )
 
 
 class AppUserForm(BaseERPForm):

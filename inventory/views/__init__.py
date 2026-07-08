@@ -1,3 +1,6 @@
+from .dashboard import dashboard
+
+
 from .products import (
     product_add,
     product_detail,
@@ -35,4 +38,10 @@ from .users import (
     user_add,
     user_edit,
     user_list,
+)
+
+
+from .product_images import (
+    product_image_add,
+    product_image_delete,
 )

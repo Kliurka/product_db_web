@@ -1,0 +1,99 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+
+<div class="page">
+
+    <div class="subtitle">
+        Stone Factory ERP / Dashboard
+    </div>
+
+    <h1>Dashboard</h1>
+
+    <div class="dashboard-grid">
+
+        <div class="dashboard-card">
+            <div class="card-title">Products</div>
+            <div class="card-value">{{ products_count }}</div>
+            <div class="card-info">
+                Available: {{ available_products_count }}
+            </div>
+            <div class="card-info">
+                Reserved: {{ reserved_products_count }}
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="card-title">Orders</div>
+            <div class="card-value">{{ orders_count }}</div>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="card-title">Customers</div>
+            <div class="card-value">{{ customers_count }}</div>
+        </div>
+
+    </div>
+
+    <div class="erp-panel">
+
+        <div class="erp-panel-title">
+            Recent Orders
+        </div>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for order in recent_orders %}
+
+                <tr>
+
+                    <td>
+                        <a href="{% url 'order_edit' order.id %}">
+                            {{ order.order_code }}
+                        </a>
+                    </td>
+
+                    <td>
+                        {{ order.customer }}
+                    </td>
+
+                    <td>
+                        {{ order.payment_status }}
+                    </td>
+
+                    <td>
+                        {{ order.partial_sum }}
+                    </td>
+
+                </tr>
+
+            {% empty %}
+
+                <tr>
+                    <td colspan="4">
+                        No orders.
+                    </td>
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

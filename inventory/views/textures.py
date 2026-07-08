@@ -38,7 +38,7 @@ def texture_list(request):
 
 def texture_add(request):
     if request.method == 'POST':
-        form = TextureForm(request.POST)
+        form = TextureForm(request.POST, request.FILES)
 
         if form.is_valid():
             texture = form.save()
@@ -56,7 +56,7 @@ def texture_edit(request, texture_id):
     texture = get_object_or_404(Texture, id=texture_id)
 
     if request.method == 'POST':
-        form = TextureForm(request.POST, instance=texture)
+        form = TextureForm(request.POST, request.FILES, instance=texture)
 
         if form.is_valid():
             form.save()

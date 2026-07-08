@@ -46,9 +46,69 @@
                     {{ form.type }}
                 </div>
 
+            <div class="erp-panel">
+
+                <div class="erp-panel-title">
+                    Product QR
+                </div>
+
+                {% if mode == 'edit' %}
+
+                    <div class="qr-panel">
+
+                        <img
+                            src="{% url 'product_qr' product.id %}"
+                            alt="QR Code"
+                            class="qr-image preview-clickable"
+                        >
+
+                        <div class="qr-code">
+
+                            {{ product.code }}
+
+                        </div>
+
+                        <div class="mode-buttons">
+
+                            <a
+                                class="btn-dark"
+                                target="_blank"
+                                href="{% url 'product_qr' product.id %}"
+                            >
+                                Open QR
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="center-note">
+
+                        QR code will be generated after saving the product.
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
                 <div class="field">
                     <label>Material / Texture *</label>
                     {{ form.texture }}
+
+                    <div id="texture-preview" class="texture-preview">
+                        {% if mode == 'edit' and product.texture and product.texture.image %}
+                            <img
+                                src="{{ product.texture.image.url }}"
+                                alt="{{ product.texture.name }}"
+                                class="preview-clickable"
+                            >
+                        {% else %}
+                            <div class="center-note">No texture preview.</div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -105,18 +165,51 @@
         </div>
 
         <div class="erp-panel">
-            <div class="panel-title right-title">
-                <span>05 — Photos 0/6</span>
-                <button type="button">▧ Add Photo</button>
+            <div class="erp-panel-title right-title">
+                <span>05 — Photos {{ photos|length }}/6</span>
+
+                {% if mode == 'edit' %}
+                    <a href="{% url 'product_image_add' product.code %}">
+                        <button type="button">▧ Add Photo</button>
+                    </a>
+                {% else %}
+                    <button type="button" disabled>▧ Add Photo</button>
+                {% endif %}
             </div>
 
             <div class="photo-row">
-                <div class="photo-box"></div>
-                <div class="photo-box"></div>
-                <div class="photo-box"></div>
-                <div class="photo-box"></div>
-                <div class="photo-box"></div>
-                <div class="photo-box"></div>
+
+                {% for photo in photos %}
+                    {% if photo.image %}
+                    <div class="photo-box">
+
+                        <img
+                            src="{{ photo.image.url }}"
+                            alt="Product photo"
+                            class="preview-clickable"
+                        >
+
+                        <div class="photo-actions">
+
+                            <a
+                                class="photo-delete"
+                                href="{% url 'product_image_delete' photo.id %}"
+                                onclick="return confirm('Delete this photo?');"
+                            >
+                                ✕
+                            </a>
+
+                        </div>
+
+                    </div>
+                
+                    {% endif %}
+                {% empty %}
+                    <div class="center-note">
+                        No photos uploaded.
+                    </div>
+                {% endfor %}
+
             </div>
 
             <small>Accepted formats: JPG, PNG, WEBP — max 8 MB per file</small>
@@ -126,9 +219,12 @@
 
         {% url 'product_list' as cancel_url %}
         {% include "components/forms/form_actions_bottom.html" with cancel_url=cancel_url object_name="Product" %}
-
+        {% include "components/image_modal.html" %}
     </form>
 </div>
+
+
+
 
 <style>
 .top-actions, .bottom-actions {
@@ -248,4 +344,33 @@ textarea {
     }
 }
 </style>
+
+<script>
+const textureImages = {
+    {% for texture in textures %}
+        "{{ texture.id }}": "{% if texture.image %}{{ texture.image.url|escapejs }}{% endif %}",
+    {% endfor %}
+};
+
+const textureSelect = document.getElementById("id_texture");
+const preview = document.getElementById("texture-preview");
+
+function updateTexturePreview() {
+    const textureId = textureSelect.value;
+    const imageUrl = textureImages[textureId];
+
+    if (imageUrl) {
+        preview.innerHTML = `<img src="${imageUrl}" alt="Texture preview" class="preview-clickable">`;
+    } else {
+        preview.innerHTML = `<div class="center-note">No texture preview.</div>`;
+    }
+}
+
+if (textureSelect && preview) {
+    textureSelect.addEventListener("change", updateTexturePreview);
+}
+</script>
+
+{% include "components/image_modal.html" %}
+
 {% endblock %}

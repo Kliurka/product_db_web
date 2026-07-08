@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from inventory.forms import ProductForm
-from inventory.models import Product, ProductType
+from inventory.models import Product, ProductType, Texture
 from inventory.utils.sorting import get_sort_params
 
 
@@ -102,6 +102,7 @@ def product_add(request):
     return render(request, 'inventory/product_form.html', {
         'form': form,
         'mode': 'add',
+        'textures': Texture.objects.all(),
     })
 
 def product_edit(request, code):
@@ -127,5 +128,7 @@ def product_edit(request, code):
             'form': form,
             'mode': 'edit',
             'product': product,
+            'textures': Texture.objects.all(),
+            "photos": product.images.all(),
         }
     )

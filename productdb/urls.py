@@ -19,6 +19,9 @@ from django.urls import path, include
 
 from inventory import views
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('inventory.urls')),
@@ -26,3 +29,5 @@ urlpatterns = [
     path('customers/add/', views.customer_add, name='customer_add'),
     path('customers/<int:customer_id>/edit/', views.customer_edit, name='customer_edit'),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

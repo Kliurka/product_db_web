@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.utils.text import slugify
 
 class Role(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -81,7 +81,7 @@ class ProductType(models.Model):
 
 class Texture(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    image_url = models.TextField(blank=True, null=True)
+    image = models.ImageField(upload_to='textures/', blank=True, null=True)
 
     class Meta:
         db_table = 'textures'
@@ -139,20 +139,46 @@ class Product(models.Model):
         return f"{self.code} - {self.name}"
 
 
+
+def product_image_path(instance, filename):
+    code = slugify(instance.product.code)
+    return f"products/{code}/{filename}"
+
 class ProductImage(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    image_url = models.TextField()
-    image_type = models.CharField(max_length=50, default='gallery')
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="images",
+    )
+
+    image = models.ImageField(
+        upload_to=product_image_path,
+        blank=True,
+        null=True,
+    )
+
+    image_type = models.CharField(
+        max_length=50,
+        default="gallery",
+    )
+
     is_primary = models.BooleanField(default=False)
+
     sort_order = models.IntegerField(default=0)
-    uploaded_at = models.DateTimeField(blank=True, null=True)
+
+    uploaded_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        auto_now_add=True,
+    )
 
     class Meta:
-        db_table = 'product_images'
+        db_table = "product_images"
+        ordering = ["sort_order", "id"]
 
     def __str__(self):
-        return self.image_url
-
+        return self.image.name if self.image else "(no image)"
+    
 
 class Order(models.Model):
     PAYMENT_STATUS = [

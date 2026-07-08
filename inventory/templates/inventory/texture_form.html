@@ -11,7 +11,7 @@
         <h1>Add Texture</h1>
     {% endif %}
 
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
 
         {% url 'texture_list' as cancel_url %}
@@ -31,36 +31,43 @@
         <div class="erp-panel">
 
             <div class="erp-panel-title">
-                02 — Preview Image
+                02 — Texture Photo
             </div>
 
-            <label>Image URL</label>
-            {{ form.image_url }}
+            <label>Texture Photo</label>
+
+            {{ form.image }}
 
             <div class="erp-help">
-                Future version will support image upload and camera capture.
+                You can select an image or take a photo using your smartphone camera.
             </div>
+
+            <div class="texture-preview">
+
+                {% if mode == 'edit' and texture.image %}
+
+                    <img
+                        src="{{ texture.image.url }}"
+                        alt="{{ texture.name }}"
+                        id="texturePreview"
+                        class="preview-clickable"
+                    >
+
+                {% else %}
+
+                    <div class="center-note">
+                        No preview available.
+                    </div>
+
+                {% endif %}
+
+
+            </div>
+            
 
         </div>
 
-        <div class="erp-panel">
 
-            <div class="erp-panel-title">
-                03 — Preview
-            </div>
-
-            {% if mode == 'edit' and texture.image_url %}
-                <img
-                    src="{{ texture.image_url }}"
-                    alt="{{ texture.name }}"
-                    style="max-width:220px;border:2px solid #111;">
-            {% else %}
-                <div class="center-note">
-                    No preview available.
-                </div>
-            {% endif %}
-
-        </div>
 
         {% include "components/forms/audit_panel_simple.html" %}
 
@@ -69,5 +76,29 @@
 
     </form>
 
+    {% if mode == 'edit' and texture.image %}
+
+    <div id="imageModal" class="image-modal">
+
+        <span class="image-close">&times;</span>
+
+        <img
+            id="modalImage"
+            class="image-modal-content"
+            src="{{ texture.image.url }}"
+            alt="{{ texture.name }}"
+        >
+
+    </div>
+
+    {% endif %}
+
+
+
+
 </div>
+
+
+{% include "components/image_modal.html" %}
+
 {% endblock %}

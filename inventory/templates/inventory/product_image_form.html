@@ -1,0 +1,42 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="page">
+
+    {% include "components/layout/page_header.html" with subtitle="Catalog Management / Product Photos" title="Add Product Photo" %}
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% url 'product_edit' product.code as cancel_url %}
+        {% include "components/forms/form_actions_top.html" with cancel_url=cancel_url object_name="Photo" %}
+
+        <div class="erp-panel">
+            <div class="erp-panel-title">01 — Product</div>
+
+            <label>Product Code</label>
+            <input type="text" value="{{ product.code }}" disabled>
+
+            <label>Product Name</label>
+            <input type="text" value="{{ product.name }}" disabled>
+        </div>
+
+        <div class="erp-panel">
+            <div class="erp-panel-title">02 — Photo</div>
+
+            <label>Product Photo</label>
+            {{ form.image }}
+
+            <div class="erp-help">
+                You can select an image or take a photo using your smartphone camera.
+            </div>
+        </div>
+
+        {% include "components/forms/audit_panel_simple.html" %}
+
+        {% url 'product_edit' product.code as cancel_url %}
+        {% include "components/forms/form_actions_bottom.html" with cancel_url=cancel_url object_name="Photo" %}
+    </form>
+
+</div>
+{% endblock %}

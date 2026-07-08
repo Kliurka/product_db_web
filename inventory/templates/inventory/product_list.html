@@ -41,7 +41,9 @@
         </select>
 
         <button class="btn-green" type="submit">Filter</button>
-        <a href="/scan/"><button class="btn-dark" type="button">Scan QR</button></a>
+        <a href="{% url 'scan_qr' %}?next=products">
+            <button type="button">▦ Scan QR</button>
+        </a>
     </form>
 
     <table>

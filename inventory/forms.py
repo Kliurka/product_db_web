@@ -2,6 +2,7 @@ from django import forms
 
 from .models import (
     Product,
+    ProductImage,
     Order,
     Discount,
     Customer,
@@ -47,6 +48,33 @@ class ProductForm(BaseERPForm):
             'status',
         ]
 
+class ProductImageForm(BaseERPForm):
+    class Meta:
+        model = ProductImage
+        fields = ['image']
+
+        widgets = {
+            'image': forms.FileInput(attrs={
+                'accept': 'image/*',
+                'capture': 'environment',
+            }),
+        }
+
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+
+        if not image:
+            return image
+
+        product = self.initial.get('product')
+
+        prefix = product.code if product else 'product'
+
+        return process_uploaded_image(
+            image,
+            size=(1600, 1600),
+            filename_prefix=prefix,
+        )
 
 class OrderForm(BaseERPForm):
     discount = forms.ModelChoiceField(

@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+from django.contrib.auth.models import User
 
 class Role(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -15,16 +16,33 @@ class AppUser(models.Model):
     username = models.CharField(max_length=50, unique=True)
     password_hash = models.TextField()
     full_name = models.CharField(max_length=100, blank=True, null=True)
-    role = models.ForeignKey(Role, on_delete=models.SET_NULL, blank=True, null=True, db_column='role_id')
+
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="profile",
+        blank=True,
+        null=True,
+    )
+
+    role = models.ForeignKey(
+        Role,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        db_column="role_id",
+    )
+
     active = models.BooleanField(default=True)
     last_login = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        db_table = 'users'
+        db_table = "users"
 
     def __str__(self):
+        if self.user:
+            return self.user.username
         return self.username
-
 
 class Discount(models.Model):
     name = models.CharField(max_length=100)

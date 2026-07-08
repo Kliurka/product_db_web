@@ -12,6 +12,8 @@ from .models import (
 )
 
 from inventory.utils.images import process_uploaded_image
+from django.contrib.auth.models import User
+
 
 
 CAMERA_FILE_INPUT = forms.FileInput(attrs={
@@ -158,11 +160,43 @@ class TextureForm(BaseERPForm):
         )
 
 
-class AppUserForm(BaseERPForm):
+class AppUserCreateForm(forms.ModelForm):
+    username = forms.CharField(max_length=150)
+    password = forms.CharField(widget=forms.PasswordInput)
+    password_confirm = forms.CharField(widget=forms.PasswordInput)
+
     class Meta:
         model = AppUser
         fields = [
-            'username',
+            'full_name',
+            'role',
+            'active',
+        ]
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError("Username already exists.")
+
+        return username
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        password = cleaned_data.get('password')
+        password_confirm = cleaned_data.get('password_confirm')
+
+        if password and password_confirm and password != password_confirm:
+            raise forms.ValidationError("Passwords do not match.")
+
+        return cleaned_data
+
+
+class AppUserEditForm(BaseERPForm):
+    class Meta:
+        model = AppUser
+        fields = [
             'full_name',
             'role',
             'active',

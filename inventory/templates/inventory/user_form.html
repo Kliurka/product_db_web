@@ -3,13 +3,7 @@
 {% block content %}
 <div class="page">
 
-    <div class="subtitle">System / Users</div>
-
-    {% if mode == 'edit' %}
-        <h1>Edit User</h1>
-    {% else %}
-        <h1>Add User</h1>
-    {% endif %}
+    {% include "components/layout/page_header.html" with subtitle="Administration / Users" title="User" %}
 
     <form method="post">
         {% csrf_token %}
@@ -20,21 +14,23 @@
         <div class="erp-panel">
             <div class="erp-panel-title">01 — Account</div>
 
-            <div class="form-row">
-                <div class="field">
-                    <label>Username *</label>
-                    {{ form.username }}
-                </div>
+            {% if mode == 'add' %}
+                <label>Username *</label>
+                {{ form.username }}
 
-                <div class="field">
-                    <label>Status</label>
-                    {{ form.active }}
-                </div>
-            </div>
+                <label>Password *</label>
+                {{ form.password }}
+
+                <label>Repeat Password *</label>
+                {{ form.password_confirm }}
+            {% else %}
+                <label>Username</label>
+                <input type="text" value="{{ app_user.user.username }}" disabled>
+            {% endif %}
         </div>
 
         <div class="erp-panel">
-            <div class="erp-panel-title">02 — User Details</div>
+            <div class="erp-panel-title">02 — User Information</div>
 
             <div class="form-row">
                 <div class="field">
@@ -47,22 +43,9 @@
                     {{ form.role }}
                 </div>
             </div>
-        </div>
 
-        <div class="erp-panel">
-            <div class="erp-panel-title">03 — Login</div>
-
-            {% if mode == 'edit' and app_user.last_login %}
-                <label>Last Login</label>
-                <input type="text" value="{{ app_user.last_login|date:'Y-m-d H:i' }}" disabled>
-            {% else %}
-                <label>Last Login</label>
-                <input type="text" value="Never" disabled>
-            {% endif %}
-
-            <div class="erp-help">
-                Password management will be added later with Django authentication.
-            </div>
+            <label>Status</label>
+            {{ form.active }}
         </div>
 
         {% include "components/forms/audit_panel_simple.html" %}

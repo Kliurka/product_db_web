@@ -1,3 +1,29 @@
 <div class="topbar">
-    <div class="user">{{ request.user.username|default:"USER" }}</div>
+
+    <div class="user">
+
+        👤
+
+        {% if request.user.profile.full_name %}
+            {{ request.user.profile.full_name }}
+        {% else %}
+            {{ request.user.username }}
+        {% endif %}
+
+        |
+
+        {% if request.user.profile.role %}
+            {{ request.user.profile.role.name|title }}
+        {% else %}
+            No role
+        {% endif %}
+
+        |
+
+        <a href="{% url 'logout' %}">
+            Logout
+        </a>
+
+    </div>
+
 </div>

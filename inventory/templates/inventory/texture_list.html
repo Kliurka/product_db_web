@@ -21,11 +21,13 @@
             Search
         </button>
 
-        <a href="{% url 'texture_add' %}">
-            <button class="btn-dark" type="button">
-                + Add Texture
-            </button>
-        </a>
+        {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
+            <a href="{% url 'texture_add' %}">
+                <button class="btn-dark" type="button">
+                    + Add Texture
+                </button>
+            </a>
+        {% endif %}
 
     </form>
 
@@ -45,14 +47,17 @@
         <tr>
 
             <td>
-                <a href="{% url 'texture_edit' texture.id %}">
+                <a href="{% url 'texture_detail' texture.id %}">
                     {{ texture.name }}
                 </a>
             </td>
 
             <td>
-                {% if texture.image_url %}
-                    ✓
+                {% if texture.image %}
+                    <img
+                        src="{{ texture.image.url }}"
+                        alt="{{ texture.name }}"
+                        style="width:60px; height:60px; object-fit:cover; border-radius:6px;">
                 {% else %}
                     —
                 {% endif %}

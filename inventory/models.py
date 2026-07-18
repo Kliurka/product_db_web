@@ -48,23 +48,66 @@ class Discount(models.Model):
     name = models.CharField(max_length=100)
     percent = models.DecimalField(max_digits=5, decimal_places=2)
 
+    created_at = models.DateTimeField(blank=True, null=True)
+    created_by = models.ForeignKey(
+        AppUser,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="created_discounts",
+        db_column="created_by",
+    )
+
+    updated_at = models.DateTimeField(blank=True, null=True)
+    updated_by = models.ForeignKey(
+        AppUser,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="updated_discounts",
+        db_column="updated_by",
+    )
+
     class Meta:
-        db_table = 'discounts'
+        db_table = "discounts"
+        ordering = ["percent", "name"]
 
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.percent}%)"
 
 
 class Tax(models.Model):
     name = models.CharField(max_length=100)
     percent = models.DecimalField(max_digits=5, decimal_places=2)
 
+    created_at = models.DateTimeField(blank=True, null=True)
+    created_by = models.ForeignKey(
+        AppUser,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="created_taxes",
+        db_column="created_by",
+    )
+
+    updated_at = models.DateTimeField(blank=True, null=True)
+    updated_by = models.ForeignKey(
+        AppUser,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="updated_taxes",
+        db_column="updated_by",
+    )
+
     class Meta:
-        db_table = 'taxes'
+        db_table = "taxes"
+        ordering = ["percent", "name"]
 
     def __str__(self):
-        return self.name
-
+        return f"{self.name} ({self.percent}%)"
+    
+    
 
 class Customer(models.Model):
     name = models.CharField(max_length=200)
@@ -90,8 +133,28 @@ class ProductType(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, null=True)
 
+    created_at = models.DateTimeField(blank=True, null=True)
+    created_by = models.ForeignKey(
+        AppUser,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="created_product_types",
+        db_column="created_by",
+    )
+
+    updated_at = models.DateTimeField(blank=True, null=True)
+    updated_by = models.ForeignKey(
+        AppUser,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="updated_product_types",
+        db_column="updated_by",
+    )
+
     class Meta:
-        db_table = 'types'
+        db_table = "types"
 
     def __str__(self):
         return self.name
@@ -100,6 +163,26 @@ class ProductType(models.Model):
 class Texture(models.Model):
     name = models.CharField(max_length=100, unique=True)
     image = models.ImageField(upload_to='textures/', blank=True, null=True)
+    
+    created_at = models.DateTimeField(blank=True, null=True)
+    created_by = models.ForeignKey(
+        AppUser,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="created_textures",
+        db_column="created_by",
+    )
+
+    updated_at = models.DateTimeField(blank=True, null=True)
+    updated_by = models.ForeignKey(
+        AppUser,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="updated_textures",
+        db_column="updated_by",
+    )
 
     class Meta:
         db_table = 'textures'
@@ -114,8 +197,28 @@ class StorageLocation(models.Model):
     position = models.CharField(max_length=50, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
 
+    created_at = models.DateTimeField(blank=True, null=True)
+    created_by = models.ForeignKey(
+        AppUser,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="created_storage_locations",
+        db_column="created_by",
+    )
+
+    updated_at = models.DateTimeField(blank=True, null=True)
+    updated_by = models.ForeignKey(
+        AppUser,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="updated_storage_locations",
+        db_column="updated_by",
+    )
+
     class Meta:
-        db_table = 'storage_locations'
+        db_table = "storage_locations"
 
     def __str__(self):
         return f"{self.sector}-{self.number}-{self.position}"
@@ -134,9 +237,9 @@ class Product(models.Model):
 
     code = models.CharField(max_length=100, unique=True)
     name = models.CharField(max_length=200)
-    type = models.ForeignKey(ProductType, on_delete=models.SET_NULL, blank=True, null=True, db_column='type_id')
+    type = models.ForeignKey(ProductType, on_delete=models.SET_NULL, blank=True, null=True, related_name="products", db_column='type_id')
     description = models.TextField(blank=True, null=True)
-    storage_location = models.ForeignKey(StorageLocation, on_delete=models.SET_NULL, blank=True, null=True, db_column='storage_location_id')
+    storage_location = models.ForeignKey(StorageLocation, on_delete=models.SET_NULL, blank=True, null=True, related_name='products', db_column='storage_location_id')
     dimension_x = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     dimension_y = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     texture = models.ForeignKey(Texture, on_delete=models.SET_NULL, blank=True, null=True, db_column='texture_id')
@@ -227,7 +330,8 @@ class OrderItem(models.Model):
     order = models.ForeignKey(
         Order,
         on_delete=models.CASCADE,
-        db_column='order_id'
+        related_name="items",
+        db_column="order_id",
     )
 
     product = models.ForeignKey(

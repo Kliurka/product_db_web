@@ -8,7 +8,11 @@ from inventory.models import (
     Tax,
 )
 from inventory.utils.sorting import get_sort_params
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+from inventory.utils.permissions import role_required
 
+@login_required
 
 def customer_list(request):
     customers = Customer.objects.annotate(
@@ -64,14 +68,24 @@ def customer_list(request):
         'direction': direction,
     })
 
+@login_required
+@role_required("admin", "manager")
 
 def customer_add(request):
     if request.method == 'POST':
         form = CustomerForm(request.POST)
 
         if form.is_valid():
-            customer = form.save()
-            return redirect('customer_edit', customer_id=customer.id)
+            customer = form.save(commit=False)
+
+            customer.created_at = timezone.now()
+            customer.updated_at = timezone.now()
+            customer.created_by = request.user.profile
+            customer.updated_by = request.user.profile
+
+            customer.save()
+
+            return redirect("customer_detail", pk=customer.pk)
     else:
         form = CustomerForm()
 
@@ -81,15 +95,25 @@ def customer_add(request):
     })
 
 
-def customer_edit(request, customer_id):
-    customer = get_object_or_404(Customer, id=customer_id)
+@login_required
+@role_required("admin", "manager")
 
+def customer_edit(request, pk):
+    customer = get_object_or_404(Customer, pk=pk)
+    
     if request.method == 'POST':
         form = CustomerForm(request.POST, instance=customer)
 
         if form.is_valid():
-            form.save()
-            return redirect('customer_list')
+            customer = form.save(commit=False)
+
+            customer.updated_at = timezone.now()
+            customer.updated_by = request.user.profile
+
+            customer.save()
+
+            return redirect("customer_detail", pk=customer.pk)
+        
     else:
         form = CustomerForm(instance=customer)
 
@@ -99,3 +123,16 @@ def customer_edit(request, customer_id):
         'customer': customer,
     })
 
+
+@login_required
+@role_required("admin", "manager")
+def customer_detail(request, pk):
+    customer = get_object_or_404(Customer, pk=pk)
+
+    return render(
+        request,
+        "inventory/customer_detail.html",
+        {
+            "customer": customer,
+        },
+    )

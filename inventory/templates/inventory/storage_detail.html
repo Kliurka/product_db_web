@@ -1,0 +1,111 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="page">
+
+    {% include "components/layout/page_header.html" with subtitle="Warehouse / Storage" title=storage %}
+
+    <div class="top-actions">
+        <a href="{% url 'storage_list' %}">
+            <button type="button">← Back</button>
+        </a>
+
+        {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
+        <a href="{% url 'storage_edit' storage.id %}">
+            <button class="btn-dark" type="button">Edit Storage</button>
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="erp-panel">
+
+        <h2>Storage information</h2>
+
+        <div class="erp-grid">
+
+            <div class="erp-field">
+                <span class="erp-label">Sector</span>
+                <span>{{ storage.sector|default:"—" }}</span>
+            </div>
+
+            <div class="erp-field">
+                <span class="erp-label">Number</span>
+                <span>{{ storage.number|default:"—" }}</span>
+            </div>
+
+            <div class="erp-field">
+                <span class="erp-label">Position</span>
+                <span>{{ storage.position|default:"—" }}</span>
+            </div>
+
+            <div class="erp-field erp-field-full">
+                <span class="erp-label">Description</span>
+                <span>{{ storage.description|default:"—"|linebreaksbr }}</span>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="erp-panel">
+
+        <h2>Products in this location</h2>
+
+        {% if products %}
+
+        <table class="erp-table">
+
+            <thead>
+            <tr>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Dimensions</th>
+                <th>Texture</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+
+            <tbody>
+
+            {% for product in products %}
+
+            <tr>
+
+                <td>
+                    <a href="{% url 'product_detail' product.code %}">
+                        {{ product.code }}
+                    </a>
+                </td>
+
+                <td>{{ product.name }}</td>
+
+                <td>
+                    {% if product.dimension_x and product.dimension_y %}
+                        {{ product.dimension_x }} × {{ product.dimension_y }} mm
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td>{{ product.texture|default:"—" }}</td>
+                <td>{{ product.get_status_display }}</td>
+
+            </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+        {% else %}
+
+        <p>No products stored in this location.</p>
+
+        {% endif %}
+
+    </div>    
+
+    {% include "components/forms/audit_panel_full.html" with object=storage %}
+
+</div>
+{% endblock %}

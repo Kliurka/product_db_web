@@ -5,6 +5,13 @@ from inventory.models import Product, ProductImage
 from django.contrib import messages
 import os
 
+from django.contrib.auth.decorators import login_required
+from inventory.utils.permissions import role_required
+
+
+
+@login_required
+@role_required("admin", "manager", "worker")
 def product_image_add(request, code):
     product = get_object_or_404(Product, code=code)
 

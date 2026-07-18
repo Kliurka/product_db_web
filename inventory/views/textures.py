@@ -4,68 +4,125 @@ from inventory.forms import TextureForm
 from inventory.models import Texture
 from inventory.utils.sorting import get_sort_params
 
+from django.contrib.auth.decorators import login_required
+from inventory.utils.permissions import role_required
+from django.utils import timezone
+from django.db.models import Q
 
 # -------------------------
 # Textures
 # -------------------------
-
+@login_required
+@role_required("admin", "manager", "worker", "viewer")
 def texture_list(request):
+
+    q = request.GET.get("q", "").strip()
+
     textures = Texture.objects.all()
 
-    q = request.GET.get('q', '')
-
     if q:
-        textures = textures.filter(name__icontains=q)
+        textures = textures.filter(
+            Q(name__icontains=q)
+        )
 
-    allowed_sort = [
-        'name',
-    ]
+    sort = request.GET.get("sort", "name")
+    direction = request.GET.get("direction", "asc")
 
-    sort, direction, order_by = get_sort_params(
+    allowed_sort = {
+        "name": "name",
+    }
+
+    sort_field = allowed_sort.get(sort, "name")
+
+    if direction == "desc":
+        textures = textures.order_by(f"-{sort_field}")
+    else:
+        textures = textures.order_by(sort_field)
+
+    return render(
         request,
-        'name',
-        allowed_sort,
+        "inventory/texture_list.html",
+        {
+            "textures": textures,
+            "q": q,
+        },
     )
 
-    textures = textures.order_by(order_by)
-
-    return render(request, 'inventory/texture_list.html', {
-        'textures': textures,
-        'q': q,
-        'sort': sort,
-        'direction': direction,
-    })
-
+@login_required
+@role_required("admin", "manager")
 def texture_add(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = TextureForm(request.POST, request.FILES)
 
         if form.is_valid():
-            texture = form.save()
-            return redirect('texture_edit', texture_id=texture.id)
+            texture = form.save(commit=False)
+
+            texture.created_at = timezone.now()
+            texture.updated_at = timezone.now()
+            texture.created_by = request.user.profile
+            texture.updated_by = request.user.profile
+
+            texture.save()
+
+            return redirect("texture_detail", pk=texture.pk)
     else:
         form = TextureForm()
 
-    return render(request, 'inventory/texture_form.html', {
-        'form': form,
-        'mode': 'add',
-    })
+    return render(
+        request,
+        "inventory/texture_form.html",
+        {
+            "form": form,
+            "page_title": "Add Texture",
+        },
+    )
 
+@login_required
+@role_required("admin", "manager")
+def texture_edit(request, pk):
+    texture = get_object_or_404(Texture, pk=pk)
 
-def texture_edit(request, texture_id):
-    texture = get_object_or_404(Texture, id=texture_id)
-
-    if request.method == 'POST':
-        form = TextureForm(request.POST, request.FILES, instance=texture)
+    if request.method == "POST":
+        form = TextureForm(
+            request.POST,
+            request.FILES,
+            instance=texture,
+        )
 
         if form.is_valid():
-            form.save()
-            return redirect('texture_list')
+            texture = form.save(commit=False)
+
+            texture.updated_at = timezone.now()
+            texture.updated_by = request.user.profile
+
+            texture.save()
+
+            return redirect("texture_detail", pk=texture.pk)
     else:
         form = TextureForm(instance=texture)
 
-    return render(request, 'inventory/texture_form.html', {
-        'form': form,
-        'mode': 'edit',
-        'texture': texture,
-    })
+    return render(
+        request,
+        "inventory/texture_form.html",
+        {
+            "form": form,
+            "texture": texture,
+            "page_title": "Edit Texture",
+        },
+    )
+
+@login_required
+@role_required("admin", "manager", "worker", "viewer")
+def texture_detail(request, pk):
+    texture = get_object_or_404(Texture, pk=pk)
+
+    products = texture.product_set.all().order_by("code")
+
+    return render(
+        request,
+        "inventory/texture_detail.html",
+        {
+            "texture": texture,
+            "products": products,
+        },
+    )

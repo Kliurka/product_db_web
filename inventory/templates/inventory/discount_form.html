@@ -1,0 +1,106 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="page">
+
+    {% if mode == "edit" %}
+        {% include "components/layout/page_header.html" with subtitle="Master Data / Discounts" title="Edit Discount" %}
+    {% else %}
+        {% include "components/layout/page_header.html" with subtitle="Master Data / Discounts" title="Add Discount" %}
+    {% endif %}
+
+    <div class="top-actions">
+
+        {% if mode == "edit" %}
+            <a href="{% url 'discount_detail' discount.id %}">
+                <button type="button">← Back</button>
+            </a>
+        {% else %}
+            <a href="{% url 'discount_list' %}">
+                <button type="button">← Back</button>
+            </a>
+        {% endif %}
+
+    </div>
+
+    <div class="erp-panel">
+
+        {% if mode == "edit" %}
+            <h2>Edit discount</h2>
+        {% else %}
+            <h2>New discount</h2>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="erp-grid">
+
+                <div class="erp-field erp-field-full">
+                    <label class="erp-label" for="{{ form.name.id_for_label }}">
+                        Name
+                    </label>
+
+                    {{ form.name }}
+
+                    {% if form.name.errors %}
+                        <div class="form-errors">
+                            {{ form.name.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="erp-field">
+                    <label class="erp-label" for="{{ form.percent.id_for_label }}">
+                        Percent
+                    </label>
+
+                    {{ form.percent }}
+
+                    {% if form.percent.errors %}
+                        <div class="form-errors">
+                            {{ form.percent.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="form-errors">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="form-actions">
+
+                <button type="submit" class="btn-dark">
+                    {% if mode == "edit" %}
+                        Save Changes
+                    {% else %}
+                        Create Discount
+                    {% endif %}
+                </button>
+
+                {% if mode == "edit" %}
+                    <a href="{% url 'discount_detail' discount.id %}">
+                        <button type="button">Cancel</button>
+                    </a>
+                {% else %}
+                    <a href="{% url 'discount_list' %}">
+                        <button type="button">Cancel</button>
+                    </a>
+                {% endif %}
+
+            </div>
+
+        </form>
+
+    </div>
+
+    {% if mode == "edit" %}
+        {% include "components/forms/audit_panel_full.html" with object=discount %}
+    {% endif %}
+
+</div>
+{% endblock %}

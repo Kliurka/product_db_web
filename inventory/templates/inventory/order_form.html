@@ -193,7 +193,11 @@
             </div>
         </div>
 
-        {% include "components/forms/audit_panel_full.html" %}
+        {% if mode == "edit" %}
+            {% include "components/forms/audit_panel_full.html" with object=order %}
+        {% else %}
+            {% include "components/forms/audit_panel_simple.html" %}
+        {% endif %}
 
         {% url 'order_list' as cancel_url %}
         {% include "components/forms/form_actions_bottom.html" with cancel_url=cancel_url object_name="Order" %}

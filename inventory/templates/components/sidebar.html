@@ -1,12 +1,86 @@
 <aside class="sidebar">
-    <div class="logo">STONE FACTORY ERP</div>
+    {% load permissions_tags %}
 
-    <a href="{% url 'dashboard' %}">Dashboard</a>
-    <a href="{% url 'product_list' %}">Products</a>
-    <a href="{% url 'order_list' %}">Orders</a>
-    <a href="{% url 'customer_list' %}">Customers</a>
-    <a href="{% url 'user_list' %}">Users</a>
-    <a href="{% url 'texture_list' %}">Textures</a>
-    <a href="#">Reports</a>
-    <a href="{% url 'admin:index' %}">Admin</a>
+    <div class="logo">
+        STONE FACTORY ERP
+    </div>
+
+    <a href="{% url 'dashboard' %}">
+        Dashboard
+    </a>
+
+    <hr>
+
+    <a href="{% url 'product_list' %}">
+        Products
+    </a>
+
+    <a href="{% url 'product_type_list' %}">
+        Product Types
+    </a>
+
+    {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
+
+        <a href="{% url 'discount_list' %}">
+            Discounts
+        </a>
+    {% endif %}
+
+    {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
+
+        <a href="{% url 'tax_list' %}">
+            Taxes
+        </a>
+    {% endif %}
+
+    <a href="{% url 'texture_list' %}">
+        Textures
+    </a>
+
+    {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" or request.user.profile.role.name == "worker" %}
+        <a href="{% url 'storage_list' %}">
+            Storage
+        </a>
+    {% endif %}
+
+    <hr>
+
+    {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
+
+        <a href="{% url 'customer_list' %}">
+            Customers
+        </a>
+
+    {% endif %}
+
+    {% if request.user.profile.role.name != "viewer" %}
+
+        <a href="{% url 'order_list' %}">
+            Orders
+        </a>
+
+    {% endif %}
+
+    {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
+
+        <a href="#">
+            Reports
+        </a>
+
+    {% endif %}
+
+    <hr>
+
+    {% if request.user|has_role:"admin" %}
+
+        <a href="{% url 'user_list' %}">
+            Users
+        </a>
+
+        <a href="{% url 'admin:index' %}">
+            Django Admin
+        </a>
+
+    {% endif %}
+
 </aside>

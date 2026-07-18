@@ -1,0 +1,92 @@
+{% extends "inventory/base.html" %}
+{% load sort_tags %}
+
+{% block content %}
+<div class="page">
+
+    {% include "components/layout/page_header.html" with subtitle="Master Data / Product Types" title="Product Types" %}
+
+    <div class="top-actions">
+
+        <form method="get" class="toolbar">
+
+            <input
+                type="text"
+                name="q"
+                value="{{ q }}"
+                placeholder="Search product types..."
+            >
+
+            <button type="submit">
+                Search
+            </button>
+
+            {% if q %}
+                <a href="{% url 'product_type_list' %}">
+                    <button type="button">
+                        Clear
+                    </button>
+                </a>
+            {% endif %}
+
+        </form>
+
+        {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
+            <a href="{% url 'product_type_add' %}">
+                <button type="button" class="btn-dark">
+                    + Add Product Type
+                </button>
+            </a>
+        {% endif %}
+
+    </div>
+
+    <div class="erp-panel">
+
+        <h2>Product types</h2>
+
+        {% if product_types %}
+
+            <table class="erp-table">
+
+                <thead>
+                <tr>
+                    <th>{% sort_link "name" "Name" %}</th>
+                    <th>Description</th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                {% for product_type in product_types %}
+
+                    <tr>
+
+                        <td>
+                            <a href="{% url 'product_type_detail' product_type.id %}">
+                                {{ product_type.name }}
+                            </a>
+                        </td>
+
+                        <td>
+                            {{ product_type.description|default:"—"|truncatechars:120 }}
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        {% else %}
+
+            <p>No product types found.</p>
+
+        {% endif %}
+
+    </div>
+
+</div>
+{% endblock %}

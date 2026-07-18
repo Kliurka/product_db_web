@@ -8,9 +8,16 @@ from inventory.forms import (
 
 from inventory.models import AppUser
 
+from django.contrib.auth.decorators import login_required
+from inventory.utils.permissions import role_required
+
+
 # -------------------------
 # Users
 # -------------------------
+
+@login_required
+@role_required("admin")
 
 def user_list(request):
     users = AppUser.objects.select_related("user", "role").order_by("user__username")
@@ -23,6 +30,9 @@ def user_list(request):
         },
     )
 
+
+@login_required
+@role_required("admin")
 
 def user_add(request):
     if request.method == 'POST':
@@ -50,6 +60,9 @@ def user_add(request):
         'mode': 'add',
     })
 
+
+@login_required
+@role_required("admin")
 
 def user_edit(request, user_id):
     app_user = get_object_or_404(AppUser, id=user_id)

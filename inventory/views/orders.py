@@ -1,4 +1,4 @@
-from datetime import timezone
+from django.utils import timezone
 from decimal import Decimal
 
 from django.db.models import Sum
@@ -14,10 +14,19 @@ from inventory.models import (
 )
 from inventory.utils.sorting import get_sort_params
 
+from django.contrib.auth.decorators import login_required
+from inventory.utils.permissions import role_required
+
+
+
 
 # -------------------------
 # Orders
 # -------------------------
+
+
+@login_required
+@role_required("admin", "manager", "worker")
     
 def order_list(request):
     orders = Order.objects.all()
@@ -98,6 +107,9 @@ def create_order_item_and_reservation(order, product, discount_percent, tax_perc
     product.save()
 
 
+@login_required
+@role_required("admin", "manager")
+
 def order_add(request):
     products = Product.objects.filter(status='available').order_by('code')
 
@@ -112,6 +124,8 @@ def order_add(request):
 
             order.created_at = timezone.now()
             order.updated_at = timezone.now()
+            order.created_by = request.user.profile
+            order.updated_by = request.user.profile
             order.save()
 
             product_ids = request.POST.getlist('products')
@@ -146,31 +160,32 @@ def order_add(request):
         'mode': 'add',
     })
 
-def product_edit(request, code):
-    product = get_object_or_404(Product, code=code)
 
-    if request.method == 'POST':
-        form = ProductForm(
-            request.POST,
-            request.FILES,
-            instance=product
-        )
 
-        if form.is_valid():
-            form.save()
-            return redirect('product_list')
-    else:
-        form = ProductForm(instance=product)
 
+
+@login_required
+@role_required("admin", "manager", "worker")
+def order_detail(request, order_code):
+
+    order = get_object_or_404(
+        Order,
+        order_code=order_code,
+    )
+    items = order.items.all()
+    
     return render(
         request,
-        'inventory/product_form.html',
+        "inventory/order_detail.html",
         {
-            'form': form,
-            'mode': 'edit',
-            'product': product,
-        }
+            "order": order,
+            "items": items,
+        },
     )
+
+
+@login_required
+@role_required("admin", "manager")
 
 def order_edit(request, order_code):
     order = get_object_or_404(Order, order_code=order_code)
@@ -181,6 +196,7 @@ def order_edit(request, order_code):
         if form.is_valid():
             order = form.save(commit=False)
             order.updated_at = timezone.now()
+            order.updated_by = request.user.profile
             order.save()
 
             old_product_ids = list(

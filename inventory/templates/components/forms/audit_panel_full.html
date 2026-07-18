@@ -1,27 +1,47 @@
 <div class="erp-panel">
-    <div class="erp-panel-title">Audit Trail</div>
+
+    <div class="erp-panel-title">
+        Audit Trail
+    </div>
 
     <div class="form-row">
+
         <div class="field">
             <label>Created At</label>
-            <input type="text" value="auto" disabled>
+            <input
+                type="text"
+                value="{% if object.created_at %}{{ object.created_at|date:'Y-m-d H:i' }}{% endif %}"
+                disabled>
         </div>
 
         <div class="field">
             <label>Created By</label>
-            <input type="text" value="{{ request.user.username }}" disabled>
+            <input
+                type="text"
+                value="{% if object.created_by %}{{ object.created_by }}{% endif %}"
+                disabled>
         </div>
+
     </div>
 
     <div class="form-row">
+
         <div class="field">
             <label>Updated At</label>
-            <input type="text" value="auto" disabled>
+            <input
+                type="text"
+                value="{% if object.updated_at %}{{ object.updated_at|date:'Y-m-d H:i' }}{% endif %}"
+                disabled>
         </div>
 
         <div class="field">
             <label>Updated By</label>
-            <input type="text" value="{{ request.user.username }}" disabled>
+            <input
+                type="text"
+                value="{% if object.updated_by %}{{ object.updated_by }}{% endif %}"
+                disabled>
         </div>
+
     </div>
+
 </div>

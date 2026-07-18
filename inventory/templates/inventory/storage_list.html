@@ -33,7 +33,7 @@
         {% for storage in storage_locations %}
         <tr>
             <td>
-                <a href="{% url 'storage_edit' storage.id %}">
+                <a href="{% url 'storage_detail' storage.id %}">
                     {{ storage.sector }}
                 </a>
             </td>

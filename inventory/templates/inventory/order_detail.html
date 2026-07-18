@@ -1,0 +1,99 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="page">
+
+    {% include "components/layout/page_header.html" with subtitle="Sales / Orders" title=order.order_code %}
+
+    <div class="top-actions">
+        <a href="{% url 'order_list' %}">
+            <button type="button">← Back</button>
+        </a>
+
+        {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
+            <a href="{% url 'order_edit' order.order_code %}">
+                <button class="btn-dark" type="button">Edit Order</button>
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="erp-panel">
+        <div class="erp-panel-title">01 — Order Information</div>
+
+        <p><b>Order Code:</b> {{ order.order_code }}</p>
+        <p><b>Customer:</b> {{ order.customer }}</p>
+        <p><b>Payment Status:</b> {{ order.payment_status }}</p>
+    </div>
+
+    <div class="erp-panel">
+        <div class="erp-panel-title">02 — Description</div>
+
+        {% if order.description %}
+            {{ order.description|linebreaks }}
+        {% else %}
+            <div class="center-note">No description.</div>
+        {% endif %}
+    </div>
+
+    <div class="erp-panel">
+        <div class="erp-panel-title">03 — Order Items</div>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Code</th>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th>Discount %</th>
+                <th>VAT %</th>
+                <th>Subtotal</th>
+                <th>Total</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.product_code }}</td>
+                <td>{{ item.product_name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.unit_price }}</td>
+                <td>{{ item.discount_percent }}</td>
+                <td>{{ item.tax_percent }}</td>
+                <td>{{ item.subtotal }}</td>
+                <td>{{ item.total }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8">No order items.</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="erp-panel">
+        <div class="erp-panel-title">04 — Summary</div>
+
+        <div class="total-box">
+            <div>
+                <span>Subtotal</span>
+                <strong>{{ order.partial_sum }}</strong>
+            </div>
+
+            <div>
+                <span>Payment Status</span>
+                <strong>{{ order.payment_status }}</strong>
+            </div>
+
+            <div class="grand-total">
+                <span>Total</span>
+                <strong>{{ order.partial_sum }}</strong>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% include "components/forms/audit_panel_full.html" with object=order %}
+{% endblock %}

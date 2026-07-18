@@ -1,14 +1,19 @@
 from django.shortcuts import get_object_or_404, redirect, render
 
 from inventory.forms import StorageLocationForm
-from inventory.models import StorageLocation
+from inventory.models import StorageLocation, Product
 from inventory.utils.sorting import get_sort_params
 
+from django.contrib.auth.decorators import login_required
+from inventory.utils.permissions import role_required
+from django.utils import timezone
 
 # -------------------------
 # Storage Locations
 # -------------------------
 
+@login_required
+@role_required("admin", "manager", "worker", "viewer")
 def storage_list(request):
     storage_locations = StorageLocation.objects.all()
 
@@ -47,13 +52,26 @@ def storage_list(request):
         'direction': direction,
     })
 
+
+
+@login_required
+@role_required("admin", "manager", "worker")
 def storage_add(request):
     if request.method == 'POST':
         form = StorageLocationForm(request.POST)
 
         if form.is_valid():
-            storage = form.save()
-            return redirect('storage_edit', storage_id=storage.id)
+            storage = form.save(commit=False)
+
+            storage.created_at = timezone.now()
+            storage.updated_at = timezone.now()
+            storage.created_by = request.user.profile
+            storage.updated_by = request.user.profile
+
+            storage.save()
+
+            return redirect("storage_detail", pk=storage.pk)
+
     else:
         form = StorageLocationForm()
 
@@ -63,6 +81,8 @@ def storage_add(request):
     })
 
 
+@login_required
+@role_required("admin", "manager", "worker")
 def storage_edit(request, storage_id):
     storage = get_object_or_404(StorageLocation, id=storage_id)
 
@@ -70,8 +90,14 @@ def storage_edit(request, storage_id):
         form = StorageLocationForm(request.POST, instance=storage)
 
         if form.is_valid():
-            form.save()
-            return redirect('storage_list')
+            storage = form.save(commit=False)
+
+            storage.updated_at = timezone.now()
+            storage.updated_by = request.user.profile
+
+            storage.save()
+
+            return redirect("storage_detail", pk=storage.pk)
     else:
         form = StorageLocationForm(instance=storage)
 
@@ -80,3 +106,19 @@ def storage_edit(request, storage_id):
         'mode': 'edit',
         'storage': storage,
     })
+
+@login_required
+@role_required("admin", "manager", "worker", "viewer")
+def storage_detail(request, pk):
+    storage = get_object_or_404(StorageLocation, pk=pk)
+
+    products = storage.products.all().order_by("code")
+
+    return render(
+        request,
+        "inventory/storage_detail.html",
+        {
+            "storage": storage,
+            "products": products,
+        },
+    )

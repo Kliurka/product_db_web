@@ -1,0 +1,108 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="page">
+
+    <div class="subtitle">Master Data / Textures</div>
+
+    <h1>{{ texture.name }}</h1>
+
+    <div class="top-actions">
+
+        <a href="{% url 'texture_list' %}">
+            <button type="button">← Back</button>
+        </a>
+
+        {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
+            <a href="{% url 'texture_edit' texture.pk %}">
+                <button class="btn-dark" type="button">
+                    Edit Texture
+                </button>
+            </a>
+        {% endif %}
+
+    </div>
+
+    <div class="erp-panel">
+
+        <h2>Texture information</h2>
+
+        <div class="erp-grid">
+
+            <div class="erp-field">
+                <span class="erp-label">Name</span>
+                <span>{{ texture.name }}</span>
+            </div>
+
+            <div class="erp-field erp-field-full">
+                <span class="erp-label">Preview</span>
+
+                {% if texture.image %}
+                    <img
+                        src="{{ texture.image.url }}"
+                        alt="{{ texture.name }}"
+                        style="max-width:300px; max-height:300px; object-fit:contain;">
+                {% else %}
+                    <span>—</span>
+                {% endif %}
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="erp-panel">
+
+        <h2>Products using this texture</h2>
+
+        {% if products %}
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Dimensions</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for product in products %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'product_detail' product.code %}">
+                                    {{ product.code }}
+                                </a>
+                            </td>
+
+                            <td>{{ product.name }}</td>
+
+                            <td>
+                                {% if product.dimension_x and product.dimension_y %}
+                                    {{ product.dimension_x }} × {{ product.dimension_y }} mm
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+
+                            <td>{{ product.get_status_display }}</td>
+                        </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+
+        {% else %}
+
+            <p>No products use this texture.</p>
+
+        {% endif %}
+
+    </div>
+
+    {% include "components/forms/audit_panel_full.html" with object=texture %}
+
+</div>
+{% endblock %}

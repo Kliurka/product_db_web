@@ -1,21 +1,126 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ product.code }}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
-<body>
+{% extends "inventory/base.html" %}
 
-<h1>{{ product.name }}</h1>
+{% block content %}
+<div class="page">
 
-<p><b>Code:</b> {{ product.code }}</p>
-<p><b>Texture:</b> {{ product.texture }}</p>
-<p><b>Location:</b> {{ product.storage_location }}</p>
-<p><b>Size:</b> {{ product.dimension_x }} x {{ product.dimension_y }}</p>
-<p><b>Price:</b> {{ product.price }}</p>
-<p><b>Status:</b> {{ product.status }}</p>
+    {% include "components/layout/page_header.html" with subtitle="Catalog Management / Products" title=product.name %}
 
-<p><a href="/scan/">Scan again</a></p>
+    <div class="top-actions">
+        <a href="{% url 'product_list' %}">
+            <button type="button">← Back</button>
+        </a>
 
-</body>
-</html>
+        {% if request.user.profile.role.name != "viewer" %}
+            <a href="{% url 'product_edit' product.code %}">
+                <button class="btn-dark" type="button">Edit Product</button>
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="erp-panel">
+        <div class="erp-panel-title">Product QR</div>
+
+        <div class="qr-panel">
+            <img
+                src="{% url 'product_qr' product.id %}"
+                alt="QR Code"
+                class="qr-image preview-clickable"
+            >
+
+            <div class="qr-code">{{ product.code }}</div>
+        </div>
+    </div>
+
+    <div class="erp-panel">
+        <div class="erp-panel-title">Product Information</div>
+
+        <p><b>Code:</b> {{ product.code }}</p>
+        <p><b>Name:</b> {{ product.name }}</p>
+        <p>
+            <b>Type:</b>
+            {% if product.type %}
+                <a href="{% url 'product_type_detail' product.type.id %}">
+                    {{ product.type }}
+                </a>
+            {% else %}
+                —
+            {% endif %}
+        </p>
+
+        <p>
+            <b>Texture:</b>
+            {% if product.texture %}
+                <a href="{% url 'texture_detail' product.texture.id %}">
+                    {{ product.texture }}
+                </a>
+            {% else %}
+                —
+            {% endif %}
+        </p>
+
+        <p>
+            <b>Storage:</b>
+            {% if product.storage_location %}
+                <a href="{% url 'storage_detail' product.storage_location.id %}">
+                    {{ product.storage_location }}
+                </a>
+            {% else %}
+                —
+            {% endif %}
+        </p>
+        <p><b>Dimensions:</b> {{ product.dimension_x }} × {{ product.dimension_y }} mm</p>
+        <p><b>Price:</b> {{ product.price }}</p>
+        <p><b>Status:</b> {{ product.get_status_display }}</p>
+    </div>
+
+    <div class="erp-panel">
+        <div class="erp-panel-title">Texture Preview</div>
+
+        {% if product.texture and product.texture.image %}
+            <div class="texture-preview">
+                <img
+                    src="{{ product.texture.image.url }}"
+                    alt="{{ product.texture.name }}"
+                    class="preview-clickable"
+                >
+            </div>
+        {% else %}
+            <div class="center-note">No texture preview.</div>
+        {% endif %}
+    </div>
+
+    <div class="erp-panel">
+        <div class="erp-panel-title">Product Photos</div>
+
+        <div class="photo-row">
+            {% for photo in product.images.all %}
+                {% if photo.image %}
+                    <div class="photo-box">
+                        <img
+                            src="{{ photo.image.url }}"
+                            alt="Product photo"
+                            class="preview-clickable"
+                        >
+                    </div>
+                {% endif %}
+            {% empty %}
+                <div class="center-note">No photos uploaded.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="erp-panel">
+        <div class="erp-panel-title">Description</div>
+
+        {% if product.description %}
+            {{ product.description|linebreaks }}
+        {% else %}
+            <div class="center-note">No description.</div>
+        {% endif %}
+    </div>
+
+</div>
+
+{% include "components/image_modal.html" %}
+{% include "components/forms/audit_panel_full.html" with object=product %}
+{% endblock %}

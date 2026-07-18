@@ -1,0 +1,102 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="page">
+
+    {% if mode == "edit" %}
+        {% include "components/layout/page_header.html" with subtitle="Master Data / Product Types" title="Edit Product Type" %}
+    {% else %}
+        {% include "components/layout/page_header.html" with subtitle="Master Data / Product Types" title="Add Product Type" %}
+    {% endif %}
+
+    <div class="top-actions">
+        {% if mode == "edit" %}
+            <a href="{% url 'product_type_detail' product_type.id %}">
+                <button type="button">← Back</button>
+            </a>
+        {% else %}
+            <a href="{% url 'product_type_list' %}">
+                <button type="button">← Back</button>
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="erp-panel">
+
+        {% if mode == "edit" %}
+            <h2>Edit product type</h2>
+        {% else %}
+            <h2>New product type</h2>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="erp-grid">
+
+                <div class="erp-field erp-field-full">
+                    <label class="erp-label" for="{{ form.name.id_for_label }}">
+                        Name
+                    </label>
+
+                    {{ form.name }}
+
+                    {% if form.name.errors %}
+                        <div class="form-errors">
+                            {{ form.name.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="erp-field erp-field-full">
+                    <label class="erp-label" for="{{ form.description.id_for_label }}">
+                        Description
+                    </label>
+
+                    {{ form.description }}
+
+                    {% if form.description.errors %}
+                        <div class="form-errors">
+                            {{ form.description.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="form-errors">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="form-actions">
+                <button type="submit" class="btn-dark">
+                    {% if mode == "edit" %}
+                        Save Changes
+                    {% else %}
+                        Create Product Type
+                    {% endif %}
+                </button>
+
+                {% if mode == "edit" %}
+                    <a href="{% url 'product_type_detail' product_type.id %}">
+                        <button type="button">Cancel</button>
+                    </a>
+                {% else %}
+                    <a href="{% url 'product_type_list' %}">
+                        <button type="button">Cancel</button>
+                    </a>
+                {% endif %}
+            </div>
+
+        </form>
+
+    </div>
+
+    {% if mode == "edit" %}
+        {% include "components/forms/audit_panel_full.html" with object=product_type %}
+    {% endif %}
+
+</div>
+{% endblock %}

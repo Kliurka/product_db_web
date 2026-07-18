@@ -1,6 +1,7 @@
 from io import BytesIO
 
 import qrcode
+from django.utils import timezone
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -9,8 +10,13 @@ from inventory.forms import ProductForm
 from inventory.models import Product, ProductType, Texture
 from inventory.utils.sorting import get_sort_params
 
+from django.contrib.auth.decorators import login_required
+from inventory.utils.permissions import role_required
 
 
+
+@login_required
+@role_required("admin", "manager", "worker", "viewer")
 def product_list(request):
     products = Product.objects.all()
 
@@ -74,7 +80,8 @@ def product_qr(request, product_id):
 
     return HttpResponse(buffer.getvalue(), content_type='image/png')
 
-
+@login_required
+@role_required("admin", "manager", "worker", "viewer")
 def product_detail(request, code):
     product = get_object_or_404(Product, code=code)
 
@@ -89,13 +96,24 @@ def scan_qr(request):
     return render(request, 'inventory/scan_qr.html')
 
 
+@login_required
+@role_required("admin", "manager", "worker")
 def product_add(request):
     if request.method == 'POST':
         form = ProductForm(request.POST)
 
         if form.is_valid():
-            product = form.save()
+            product = form.save(commit=False)
+
+            product.created_at = timezone.now()
+            product.updated_at = timezone.now()
+            product.created_by = request.user.profile
+            product.updated_by = request.user.profile
+
+            product.save()
+
             return redirect('product_detail', code=product.code)
+        
     else:
         form = ProductForm()
 
@@ -105,6 +123,9 @@ def product_add(request):
         'textures': Texture.objects.all(),
     })
 
+
+@login_required
+@role_required("admin", "manager", "worker")
 def product_edit(request, code):
     product = get_object_or_404(Product, code=code)
 
@@ -116,8 +137,15 @@ def product_edit(request, code):
         )
 
         if form.is_valid():
-            form.save()
-            return redirect('product_list')
+            product = form.save(commit=False)
+
+            product.updated_at = timezone.now()
+            product.updated_by = request.user.profile
+
+            product.save()
+
+            return redirect('product_detail', code=product.code)
+
     else:
         form = ProductForm(instance=product)
 

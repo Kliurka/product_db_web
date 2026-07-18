@@ -1,0 +1,114 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="page">
+
+    {% include "components/layout/page_header.html" with subtitle="Master Data / Product Types" title=product_type %}
+
+    <div class="top-actions">
+        <a href="{% url 'product_type_list' %}">
+            <button type="button">← Back</button>
+        </a>
+
+        {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
+        <a href="{% url 'product_type_edit' product_type.id %}">
+            <button class="btn-dark" type="button">
+                Edit Product Type
+            </button>
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="erp-panel">
+
+        <h2>Product type information</h2>
+
+        <div class="erp-grid">
+
+            <div class="erp-field">
+                <span class="erp-label">Name</span>
+                <span>{{ product_type.name|default:"—" }}</span>
+            </div>
+
+            <div class="erp-field erp-field-full">
+                <span class="erp-label">Description</span>
+                <span>{{ product_type.description|default:"—"|linebreaksbr }}</span>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="erp-panel">
+
+        <h2>Products using this type</h2>
+
+        {% if products %}
+
+        <table class="erp-table">
+
+            <thead>
+            <tr>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Dimensions</th>
+                <th>Texture</th>
+                <th>Storage</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+
+            <tbody>
+
+            {% for product in products %}
+
+            <tr>
+
+                <td>
+                    <a href="{% url 'product_detail' product.code %}">
+                        {{ product.code }}
+                    </a>
+                </td>
+
+                <td>{{ product.name }}</td>
+
+                <td>
+                    {% if product.dimension_x and product.dimension_y %}
+                        {{ product.dimension_x }} × {{ product.dimension_y }} mm
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+
+                <td>
+                    {{ product.texture|default:"—" }}
+                </td>
+
+                <td>
+                    {{ product.storage_location|default:"—" }}
+                </td>
+
+                <td>
+                    {{ product.get_status_display }}
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+        {% else %}
+
+        <p>No products use this product type.</p>
+
+        {% endif %}
+
+    </div>
+
+    {% include "components/forms/audit_panel_full.html" with object=product_type %}
+
+</div>
+{% endblock %}

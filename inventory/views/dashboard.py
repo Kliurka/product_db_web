@@ -2,7 +2,12 @@ from django.shortcuts import render
 
 from inventory.models import Customer, Order, Product
 
+from django.contrib.auth.decorators import login_required
+from inventory.utils.permissions import role_required
 
+
+@login_required
+@role_required("admin", "manager", "worker", "viewer")
 def dashboard(request):
     products_count = Product.objects.count()
     available_products_count = Product.objects.filter(status='available').count()

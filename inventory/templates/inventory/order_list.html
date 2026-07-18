@@ -9,7 +9,11 @@
 
     <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
         <a href="/orders/add/">
-            <button class="btn-dark" type="button">+ Add Order</button>
+            {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
+                <a href="{% url 'order_add' %}">
+                    <button class="btn-dark" type="button">+ Add Order</button>
+                </a>
+            {% endif %}
         </a>
     </div>
 
@@ -47,7 +51,7 @@
             <tr>
                 <td>
                     <a class="code" href="/admin/inventory/order/{{ o.id }}/change/">
-                        <a class="code" href="/orders/{{ o.order_code }}/edit/"> {{ o.order_code }}</a>
+                        <a class="code" href="{% url 'order_detail' o.order_code %}">{{ o.order_code }}</a>
                     </a>
                 </td>
                 <td><b>{{ o.customer }}</b></td>

@@ -69,7 +69,7 @@
         <tbody>
             {% for p in products %}
             <tr>
-                <td><a class="code" href="/product/{{ p.code }}/edit/">{{ p.code }}</a></td>
+                <td><a class="code" href="{% url 'product_detail' p.code %}">{{ p.code }}</a></td>
                 <td><b>{{ p.name }}</b></td>
                 <td>{{ p.type }}</td>
                 <td>{{ p.texture }}</td>

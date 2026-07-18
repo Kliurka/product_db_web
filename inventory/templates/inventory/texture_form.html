@@ -26,7 +26,14 @@
             <label>Name *</label>
             {{ form.name }}
 
+            {% if form.name.errors %}
+                <div class="form-errors">
+                    {{ form.name.errors }}
+                </div>
+            {% endif %}
+
         </div>
+
 
         <div class="erp-panel">
 
@@ -38,13 +45,19 @@
 
             {{ form.image }}
 
+            {% if form.image.errors %}
+                <div class="form-errors">
+                    {{ form.image.errors }}
+                </div>
+            {% endif %}
+
             <div class="erp-help">
                 You can select an image or take a photo using your smartphone camera.
             </div>
 
             <div class="texture-preview">
 
-                {% if mode == 'edit' and texture.image %}
+                {% if texture and texture.image %}
 
                     <img
                         src="{{ texture.image.url }}"
@@ -61,12 +74,9 @@
 
                 {% endif %}
 
-
             </div>
-            
 
         </div>
-
 
 
         {% include "components/forms/audit_panel_simple.html" %}
@@ -76,7 +86,8 @@
 
     </form>
 
-    {% if mode == 'edit' and texture.image %}
+
+    {% if texture and texture.image %}
 
     <div id="imageModal" class="image-modal">
 
@@ -93,11 +104,7 @@
 
     {% endif %}
 
-
-
-
 </div>
-
 
 {% include "components/image_modal.html" %}
 

@@ -1,0 +1,47 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="page">
+
+    {% include "components/layout/page_header.html" with subtitle="Master Data / Discounts" title=discount.name %}
+
+    <div class="top-actions">
+
+        <a href="{% url 'discount_list' %}">
+            <button type="button">← Back</button>
+        </a>
+
+        {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
+            <a href="{% url 'discount_edit' discount.id %}">
+                <button type="button" class="btn-dark">
+                    Edit Discount
+                </button>
+            </a>
+        {% endif %}
+
+    </div>
+
+    <div class="erp-panel">
+
+        <h2>Discount information</h2>
+
+        <div class="erp-grid">
+
+            <div class="erp-field">
+                <span class="erp-label">Name</span>
+                <span>{{ discount.name|default:"—" }}</span>
+            </div>
+
+            <div class="erp-field">
+                <span class="erp-label">Percent</span>
+                <span>{{ discount.percent }}%</span>
+            </div>
+
+        </div>
+
+    </div>
+
+    {% include "components/forms/audit_panel_full.html" with object=discount %}
+
+</div>
+{% endblock %}

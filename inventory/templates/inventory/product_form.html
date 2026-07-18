@@ -215,7 +215,11 @@
             <small>Accepted formats: JPG, PNG, WEBP — max 8 MB per file</small>
         </div>
 
-        {% include "components/forms/audit_panel_full.html" %}
+        {% if mode == "edit" %}
+            {% include "components/forms/audit_panel_full.html" with object=product %}
+        {% else %}
+            {% include "components/forms/audit_panel_simple.html" %}
+        {% endif %}
 
         {% url 'product_list' as cancel_url %}
         {% include "components/forms/form_actions_bottom.html" with cancel_url=cancel_url object_name="Product" %}

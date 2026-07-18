@@ -9,11 +9,12 @@ from .models import (
     AppUser,
     StorageLocation,
     Texture,
+    ProductType,
+    Tax
 )
 
 from inventory.utils.images import process_uploaded_image
 from django.contrib.auth.models import User
-
 
 
 CAMERA_FILE_INPUT = forms.FileInput(attrs={
@@ -201,3 +202,85 @@ class AppUserEditForm(BaseERPForm):
             'role',
             'active',
         ]
+        
+class TextureForm(forms.ModelForm):
+    class Meta:
+        model = Texture
+        fields = [
+            "name",
+            "image",
+        ]
+        
+class ProductTypeForm(forms.ModelForm):
+    class Meta:
+        model = ProductType
+        fields = [
+            "name",
+            "description",
+        ]
+
+        widgets = {
+            "name": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Product type name",
+                }
+            ),
+            "description": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 5,
+                    "placeholder": "Description",
+                }
+            ),
+        }
+
+class DiscountForm(forms.ModelForm):
+    class Meta:
+        model = Discount
+        fields = [
+            "name",
+            "percent",
+        ]
+
+        widgets = {
+            "name": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Discount name",
+                }
+            ),
+            "percent": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "step": "0.01",
+                    "min": "0",
+                    "max": "100",
+                }
+            ),
+        }
+        
+class TaxForm(forms.ModelForm):
+    class Meta:
+        model = Tax
+        fields = [
+            "name",
+            "percent",
+        ]
+
+        widgets = {
+            "name": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Tax name",
+                }
+            ),
+            "percent": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "step": "0.01",
+                    "min": "0",
+                    "max": "100",
+                }
+            ),
+        }

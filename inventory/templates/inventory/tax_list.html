@@ -1,0 +1,86 @@
+{% extends "inventory/base.html" %}
+{% load sort_tags %}
+
+{% block content %}
+<div class="page">
+
+    {% include "components/layout/page_header.html" with subtitle="Master Data / Taxes" title="Taxes" %}
+
+    <div class="top-actions">
+
+        <form method="get" class="toolbar">
+
+            <input
+                type="text"
+                name="q"
+                value="{{ q }}"
+                placeholder="Search taxes..."
+            >
+
+            <button type="submit">
+                Search
+            </button>
+
+            {% if q %}
+                <a href="{% url 'tax_list' %}">
+                    <button type="button">Clear</button>
+                </a>
+            {% endif %}
+
+        </form>
+
+        {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
+            <a href="{% url 'tax_add' %}">
+                <button type="button" class="btn-dark">
+                    + Add Tax
+                </button>
+            </a>
+        {% endif %}
+
+    </div>
+
+    <div class="erp-panel">
+
+        <h2>Taxes</h2>
+
+        {% if taxes %}
+
+            <table class="erp-table">
+
+                <thead>
+                <tr>
+                    <th>{% sort_link "name" "Name" %}</th>
+                    <th>{% sort_link "percent" "Percent" %}</th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                {% for tax in taxes %}
+                    <tr>
+
+                        <td>
+                            <a href="{% url 'tax_detail' tax.id %}">
+                                {{ tax.name }}
+                            </a>
+                        </td>
+
+                        <td>{{ tax.percent }}%</td>
+
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        {% else %}
+
+            <p>No taxes found.</p>
+
+        {% endif %}
+
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="page">
+
+    {% include "components/layout/page_header.html" with subtitle="CRM / Customers" title=customer.name %}
+
+    <div class="top-actions">
+        <a href="{% url 'customer_list' %}">
+            <button type="button">← Back</button>
+        </a>
+
+        <a href="{% url 'customer_edit' customer.id %}">
+            <button class="btn-dark" type="button">Edit Customer</button>
+        </a>
+    </div>
+
+    <div class="erp-panel">
+        <h2>Customer information</h2>
+
+        <div class="erp-grid">
+            <div class="erp-field">
+                <span class="erp-label">Name</span>
+                <span>{{ customer.name|default:"—" }}</span>
+            </div>
+
+            <div class="erp-field">
+                <span class="erp-label">Phone</span>
+                <span>{{ customer.phone|default:"—" }}</span>
+            </div>
+
+            <div class="erp-field">
+                <span class="erp-label">Email</span>
+                <span>{{ customer.email|default:"—" }}</span>
+            </div>
+
+            <div class="erp-field">
+                <span class="erp-label">Discount</span>
+                <span>{{ customer.discount|default:"—" }}</span>
+            </div>
+
+            <div class="erp-field">
+                <span class="erp-label">Tax</span>
+                <span>{{ customer.tax|default:"—" }}</span>
+            </div>
+
+            <div class="erp-field erp-field-full">
+                <span class="erp-label">Address</span>
+                <span>{{ customer.address|default:"—"|linebreaksbr }}</span>
+            </div>
+
+            <div class="erp-field erp-field-full">
+                <span class="erp-label">Description</span>
+                <span>{{ customer.description|default:"—"|linebreaksbr }}</span>
+            </div>
+        </div>
+    </div>
+
+    {% include "components/forms/audit_panel_full.html" with object=customer %}
+
+    <div class="bottom-actions">
+        <a href="{% url 'customer_list' %}">
+            <button type="button">← Back</button>
+        </a>
+
+        <a href="{% url 'customer_edit' customer.id %}">
+            <button class="btn-dark" type="button">Edit Customer</button>
+        </a>
+    </div>
+
+</div>
+{% endblock %}

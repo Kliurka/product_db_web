@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 
 from .models import (
     Product,
@@ -10,7 +11,8 @@ from .models import (
     StorageLocation,
     Texture,
     ProductType,
-    Tax
+    Tax,
+    Payment
 )
 
 from inventory.utils.images import process_uploaded_image
@@ -284,3 +286,70 @@ class TaxForm(forms.ModelForm):
                 }
             ),
         }
+        
+        
+class PaymentForm(forms.ModelForm):
+    def __init__(self, *args, order=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.order = order
+
+        self.fields["paid_at"].input_formats = [
+            "%Y-%m-%dT%H:%M",
+        ]
+
+        if not self.instance.pk:
+            self.initial["paid_at"] = timezone.localtime().strftime(
+                "%Y-%m-%dT%H:%M"
+            )
+
+    class Meta:
+        model = Payment
+        fields = [
+            "amount",
+            "payment_type",
+            "paid_at",
+            "reference",
+            "note",
+        ]
+
+        widgets = {
+            "amount": forms.NumberInput(
+                attrs={
+                    "step": "0.01",
+                    "min": "0.01",
+                }
+            ),
+            "paid_at": forms.DateTimeInput(
+                attrs={
+                    "type": "datetime-local",
+                },
+                format="%Y-%m-%dT%H:%M",
+            ),
+            "reference": forms.TextInput(
+                attrs={
+                    "placeholder": "Transaction or receipt reference",
+                }
+            ),
+            "note": forms.Textarea(
+                attrs={
+                    "rows": 3,
+                }
+            ),
+        }
+
+    def clean_amount(self):
+        amount = self.cleaned_data["amount"]
+
+        if amount <= 0:
+            raise forms.ValidationError(
+                "Payment amount must be greater than zero."
+            )
+
+        if self.order and amount > self.order.remaining:
+            raise forms.ValidationError(
+                f"Payment cannot exceed remaining amount "
+                f"({self.order.remaining:.2f} €)."
+            )
+
+        return amount
+    

@@ -39,7 +39,7 @@
         <p>
             <b>Type:</b>
             {% if product.type %}
-                <a href="{% url 'product_type_detail' product.type.id %}">
+                <a class="code" href="{% url 'product_type_detail' product.type.id %}">
                     {{ product.type }}
                 </a>
             {% else %}
@@ -50,7 +50,7 @@
         <p>
             <b>Texture:</b>
             {% if product.texture %}
-                <a href="{% url 'texture_detail' product.texture.id %}">
+                <a class="code" href="{% url 'texture_detail' product.texture.id %}">
                     {{ product.texture }}
                 </a>
             {% else %}
@@ -61,7 +61,7 @@
         <p>
             <b>Storage:</b>
             {% if product.storage_location %}
-                <a href="{% url 'storage_detail' product.storage_location.id %}">
+                <a class="code" href="{% url 'storage_detail' product.storage_location.id %}">
                     {{ product.storage_location }}
                 </a>
             {% else %}

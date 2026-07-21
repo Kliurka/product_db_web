@@ -1,4 +1,6 @@
 from django.urls import path
+
+from inventory.views import orders
 from . import views
 
 urlpatterns = [
@@ -13,6 +15,9 @@ urlpatterns = [
     path('orders/add/', views.order_add, name='order_add'),
     path('order/<str:order_code>/', views.order_detail, name='order_detail'),
     path('order/<str:order_code>/edit/', views.order_edit, name='order_edit'),
+    path("orders/<str:order_code>/payments/add/", orders.payment_add, name="payment_add"),
+
+    path("payments/<int:payment_id>/delete/", orders.payment_delete, name="payment_delete"),
 
     path('products/add/', views.product_add, name='product_add'), 
     path('product/<str:code>/edit/', views.product_edit, name='product_edit'),
@@ -54,4 +59,6 @@ urlpatterns = [
     path("taxes/add/", views.tax_add, name="tax_add"),
     path("taxes/<int:pk>/", views.tax_detail, name="tax_detail"),
     path("taxes/<int:pk>/edit/", views.tax_edit, name="tax_edit"),
+    
+    
 ]

@@ -1,0 +1,88 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="page">
+
+    {% include "components/layout/page_header.html" with subtitle="Sales / Orders / Payments" title="Add Payment" %}
+
+    <div class="top-actions">
+        <a href="{% url 'order_detail' order.order_code %}">
+            <button type="button">
+                ← Back
+            </button>
+        </a>
+    </div>
+
+    <div class="erp-panel">
+        <div class="erp-panel-title">
+            01 — Order Information
+        </div>
+
+        <p>
+            <b>Order:</b>
+            {{ order.order_code }}
+        </p>
+
+        <p>
+            <b>Customer:</b>
+            {{ order.customer }}
+        </p>
+
+        <p>
+            <b>Grand Total:</b>
+            {{ order.grand_total|floatformat:2 }} €
+        </p>
+
+        <p>
+            <b>Paid:</b>
+            {{ order.paid_total|floatformat:2 }} €
+        </p>
+
+        <p>
+            <b>Remaining:</b>
+            {{ order.remaining|floatformat:2 }} €
+        </p>
+    </div>
+
+    <div class="erp-panel">
+        <div class="erp-panel-title">
+            02 — Payment
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {{ form.non_field_errors }}
+
+            {% for field in form %}
+                <div class="form-row">
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+                    {% if field.errors %}
+                        <div class="form-error">
+                            {{ field.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <div class="form-actions">
+                <button class="btn-dark" type="submit">
+                    Save Payment
+                </button>
+
+                <a href="{% url 'order_detail' order.order_code %}">
+                    <button type="button">
+                        Cancel
+                    </button>
+                </a>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

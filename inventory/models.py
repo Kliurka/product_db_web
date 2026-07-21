@@ -1,6 +1,10 @@
 from django.db import models
 from django.utils.text import slugify
 from django.contrib.auth.models import User
+from django.utils import timezone
+from decimal import Decimal
+from django.db.models import Sum
+
 
 class Role(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -302,28 +306,166 @@ class ProductImage(models.Model):
     
 
 class Order(models.Model):
-    PAYMENT_STATUS = [
-        ('unpaid', 'Unpaid'),
-        ('partial', 'Partial'),
-        ('paid', 'Paid'),
-        ('cancelled', 'Cancelled'),
+    ORDER_STATUS = [
+        ("draft", "Draft"),
+        ("confirmed", "Confirmed"),
+        ("in_production", "In Production"),
+        ("ready", "Ready"),
+        ("delivered", "Delivered"),
+        ("completed", "Completed"),
+        ("cancelled", "Cancelled"),
     ]
 
-    order_code = models.CharField(max_length=100, unique=True)
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, db_column='customer_id')
-    payment_status = models.CharField(max_length=50, choices=PAYMENT_STATUS, default='unpaid')
-    partial_sum = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    created_at = models.DateTimeField(blank=True, null=True)
-    created_by = models.ForeignKey(AppUser, on_delete=models.SET_NULL, blank=True, null=True, related_name='created_orders', db_column='created_by')
-    updated_at = models.DateTimeField(blank=True, null=True)
-    updated_by = models.ForeignKey(AppUser, on_delete=models.SET_NULL, blank=True, null=True, related_name='updated_orders', db_column='updated_by')
-    description = models.TextField(blank=True, null=True)
+    PAYMENT_STATUS = [
+        ("unpaid", "Unpaid"),
+        ("partial", "Partial"),
+        ("paid", "Paid"),
+        ("cancelled", "Cancelled"),
+    ]
+
+    order_code = models.CharField(
+        max_length=100,
+        unique=True,
+    )
+
+    customer = models.ForeignKey(
+        Customer,
+        on_delete=models.CASCADE,
+        db_column="customer_id",
+    )
+
+    status = models.CharField(
+        max_length=30,
+        choices=ORDER_STATUS,
+        default="draft",
+    )
+
+    payment_status = models.CharField(
+        max_length=50,
+        choices=PAYMENT_STATUS,
+        default="unpaid",
+    )
+
+    partial_sum = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+    )
+
+    created_at = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+
+    created_by = models.ForeignKey(
+        AppUser,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="created_orders",
+        db_column="created_by",
+    )
+
+    updated_at = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+
+    updated_by = models.ForeignKey(
+        AppUser,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="updated_orders",
+        db_column="updated_by",
+    )
+
+    description = models.TextField(
+        blank=True,
+        null=True,
+    )
+    
+    subtotal = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+    )
+
+    discount_total = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+    )
+
+    tax_total = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+    )
+
+    grand_total = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+    )
 
     class Meta:
-        db_table = 'orders'
+        db_table = "orders"
 
     def __str__(self):
         return self.order_code
+    
+    
+    class Meta:
+        db_table = "orders"
+
+    def __str__(self):
+        return self.order_code
+
+    @property
+    def paid_total(self):
+        total = self.payments.aggregate(
+            total=Sum("amount"),
+        )["total"]
+
+        return total or Decimal("0.00")
+
+    @property
+    def remaining(self):
+        remaining_amount = (
+            Decimal(self.grand_total or 0)
+            - self.paid_total
+        )
+
+        if remaining_amount < Decimal("0.00"):
+            return Decimal("0.00")
+
+        return remaining_amount
+
+    @property
+    def calculated_payment_status(self):
+        paid = self.paid_total
+        grand_total = Decimal(self.grand_total or 0)
+
+        if paid <= Decimal("0.00"):
+            return "unpaid"
+
+        if paid < grand_total:
+            return "partial"
+
+        return "paid"
+
+    @property
+    def calculated_payment_status_display(self):
+        labels = {
+            "unpaid": "Unpaid",
+            "partial": "Partial",
+            "paid": "Paid",
+        }
+
+        return labels[self.calculated_payment_status]
+    
+    
 
 class OrderItem(models.Model):
 
@@ -418,24 +560,63 @@ class OrderItem(models.Model):
 
 class Payment(models.Model):
     PAYMENT_TYPE = [
-        ('cash', 'Cash'),
-        ('bank_transfer', 'Bank transfer'),
-        ('card', 'Card'),
-        ('other', 'Other'),
+        ("cash", "Cash"),
+        ("bank_transfer", "Bank transfer"),
+        ("card", "Card"),
+        ("other", "Other"),
     ]
 
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, db_column='order_id')
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    payment_type = models.CharField(max_length=50, choices=PAYMENT_TYPE, default='cash')
-    paid_at = models.DateTimeField(blank=True, null=True)
-    created_by = models.ForeignKey(AppUser, on_delete=models.SET_NULL, blank=True, null=True, db_column='created_by')
-    note = models.TextField(blank=True, null=True)
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        db_column="order_id",
+        related_name="payments",
+    )
+
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+    )
+
+    payment_type = models.CharField(
+        max_length=50,
+        choices=PAYMENT_TYPE,
+        default="cash",
+    )
+
+    paid_at = models.DateTimeField(
+        default=timezone.now,
+    )
+
+    reference = models.CharField(
+        max_length=100,
+        blank=True,
+    )
+
+    created_at = models.DateTimeField(
+        default=timezone.now,
+    )
+
+    created_by = models.ForeignKey(
+        AppUser,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        db_column="created_by",
+        related_name="created_payments",
+    )
+
+    note = models.TextField(
+        blank=True,
+        null=True,
+    )
 
     class Meta:
-        db_table = 'payments'
+        db_table = "payments"
+        ordering = ["-paid_at", "-id"]
 
     def __str__(self):
-        return f"{self.order} - {self.amount}"
+        return f"{self.order.order_code} - {self.amount}"
 
 
 class Reservation(models.Model):

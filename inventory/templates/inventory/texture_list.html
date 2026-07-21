@@ -47,10 +47,11 @@
         <tr>
 
             <td>
-                <a href="{% url 'texture_detail' texture.id %}">
+                <a class="code" href="{% url 'texture_detail' texture.id %}">
                     {{ texture.name }}
                 </a>
             </td>
+
 
             <td>
                 {% if texture.image %}

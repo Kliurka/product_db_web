@@ -5,7 +5,8 @@ from django.utils.html import format_html
 from .models import (
     Role, AppUser, Discount, Tax, Customer,
     ProductType, Texture, StorageLocation,
-    Product, ProductImage, Order, Payment, Reservation, OrderItem
+    Product, ProductImage, Order, Payment, Reservation, OrderItem,
+    ProductionOperation, OrderItemOperation
 )
 
 
@@ -84,3 +85,6 @@ admin.site.register(ProductImage)
 admin.site.register(Payment)
 admin.site.register(Reservation)
 admin.site.register(OrderItem)
+
+admin.site.register(ProductionOperation)
+admin.site.register(OrderItemOperation)

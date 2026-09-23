@@ -27,6 +27,17 @@
 </div>
 
 <script src="{% static 'inventory/js/image_preview.js' %}"></script>
+<script>
+    const menuButton = document.querySelector(".mobile-menu-toggle");
+    const sidebarNavigation = document.querySelector(".sidebar-navigation");
+
+    if (menuButton && sidebarNavigation) {
+        menuButton.addEventListener("click", function () {
+            const isOpen = sidebarNavigation.classList.toggle("open");
+            menuButton.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        });
+    }
+</script>
 
 </body>
 </html>

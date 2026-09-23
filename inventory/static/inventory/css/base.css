@@ -182,3 +182,87 @@ tr:nth-child(even) { background: #f0f0ea; }
     th, td { padding: 8px; }
 }
 
+
+
+/* MOBILE NAVIGATION AND TABLES */
+
+.sidebar-header {
+    display: block;
+}
+
+.mobile-menu-toggle {
+    display: none;
+}
+
+.table-scroll {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 800px) {
+    .main {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .sidebar {
+        padding: 14px 18px;
+    }
+
+    .sidebar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .logo {
+        margin-bottom: 0;
+    }
+
+    .mobile-menu-toggle {
+        display: block;
+        width: auto;
+        margin: 0;
+        padding: 8px 10px;
+        border-color: #eee;
+        background: #111;
+        color: white;
+        font-weight: bold;
+    }
+
+    .sidebar-navigation {
+        display: none;
+        padding-top: 14px;
+    }
+
+    .sidebar-navigation.open {
+        display: block;
+    }
+
+    .page {
+        padding: 18px 12px;
+        overflow: hidden;
+    }
+
+    .erp-panel {
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .top-actions,
+    .bottom-actions {
+        max-width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .table-scroll {
+        overflow-x: auto;
+    }
+
+    .table-scroll table {
+        min-width: 700px;
+    }
+}

@@ -1,9 +1,22 @@
 <aside class="sidebar">
     {% load permissions_tags %}
 
-    <div class="logo">
-        STONE FACTORY ERP
+    <div class="sidebar-header">
+        <div class="logo">
+            STONE FACTORY ERP
+        </div>
+
+        <button
+            class="mobile-menu-toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="sidebar-navigation"
+        >
+            ☰ Menu
+        </button>
     </div>
+
+    <div class="sidebar-navigation" id="sidebar-navigation">
 
     <a href="{% url 'dashboard' %}">
         Dashboard
@@ -86,5 +99,7 @@
         </a>
 
     {% endif %}
+
+    </div>
 
 </aside>

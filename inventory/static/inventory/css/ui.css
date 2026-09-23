@@ -372,3 +372,67 @@ textarea {
         grid-template-columns: 120px minmax(300px, 1fr) auto;
     }
 }
+
+
+/* Production controls: keep action buttons beside their fields */
+.production-operation-row {
+    grid-template-columns: 150px 240px 90px;
+    justify-content: start;
+}
+
+.production-operation-remove-form {
+    width: 90px;
+}
+
+.production-operation-remove-form button {
+    width: 100%;
+}
+
+.production-operation-add-form {
+    grid-template-columns: minmax(220px, 420px) 70px;
+    justify-content: start;
+    width: auto;
+}
+
+.production-operation-add-form button {
+    width: 70px;
+}
+
+@media (max-width: 800px) {
+    .production-operation-row {
+        grid-template-columns: 110px 170px 78px;
+        justify-content: start;
+    }
+
+    .production-operation-remove-form {
+        width: 78px;
+    }
+
+    .production-operation-add-form {
+        grid-template-columns: 280px 62px;
+        justify-content: start;
+        width: auto;
+    }
+
+    .production-operation-add-form button {
+        width: 62px;
+    }
+}
+
+@media (max-width: 520px) {
+    .production-operation-row {
+        grid-template-columns: 82px 145px 68px;
+    }
+
+    .production-operation-remove-form {
+        width: 68px;
+    }
+
+    .production-operation-add-form {
+        grid-template-columns: 227px 68px;
+    }
+
+    .production-operation-add-form button {
+        width: 68px;
+    }
+}

@@ -1,6 +1,9 @@
 from django.urls import path
 
 from inventory.views import orders
+from inventory.views.production import production_list, production_detail
+from inventory.views.reports import order_pdf, production_pdf
+
 from . import views
 
 urlpatterns = [
@@ -15,6 +18,7 @@ urlpatterns = [
     path('orders/add/', views.order_add, name='order_add'),
     path('order/<str:order_code>/', views.order_detail, name='order_detail'),
     path('order/<str:order_code>/edit/', views.order_edit, name='order_edit'),
+    path("orders/<str:order_code>/status/<str:new_status>/", orders.order_status_change, name="order_status_change"),
     path("orders/<str:order_code>/payments/add/", orders.payment_add, name="payment_add"),
 
     path("payments/<int:payment_id>/delete/", orders.payment_delete, name="payment_delete"),
@@ -60,5 +64,10 @@ urlpatterns = [
     path("taxes/<int:pk>/", views.tax_detail, name="tax_detail"),
     path("taxes/<int:pk>/edit/", views.tax_edit, name="tax_edit"),
     
+    path("production/", production_list, name="production_list"),
+    path("production/<str:order_code>/", production_detail, name="production_detail"),
+    
+    path("reports/order/<str:order_code>/pdf/", order_pdf, name="order_pdf"),
+    path("reports/order/<str:order_code>/production/", production_pdf, name="production_pdf"),
     
 ]

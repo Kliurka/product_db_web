@@ -146,6 +146,23 @@ tr:nth-child(even) { background: #f0f0ea; }
 .damaged { background: #ff3b30; color: white; }
 .archived { background: #111; color: white; }
 
+/* ORDER STATUS */
+
+.draft { background: #e0e0e0;}
+.confirmed { background: #6ec6ff;}
+.in_production { background: #b388ff; color: white;}
+.ready { background: #ffd54f;}
+.delivered { background: #80cbc4;}
+.completed { background: #c6ff00;}
+.cancelled { background: #ff3b30; color: white;}
+
+
+/* PAYMENT STATUS */
+
+.unpaid { background: #ff3b30; color: white;}
+.partial { background: orange;}
+.paid { background: #c6ff00;}
+
 .sort-link {
     color: inherit;
     text-decoration: underline;
@@ -164,3 +181,4 @@ tr:nth-child(even) { background: #f0f0ea; }
     table { font-size: 12px; }
     th, td { padding: 8px; }
 }
+

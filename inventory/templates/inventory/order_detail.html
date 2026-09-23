@@ -10,6 +10,12 @@
             <button type="button">← Back</button>
         </a>
 
+        <a
+            href="{% url 'order_pdf' order.order_code %} "target="_blank">
+                <button type="button">Print order</button>
+        
+        </a>
+
         {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
             <a href="{% url 'order_edit' order.order_code %}">
                 <button class="btn-dark" type="button">
@@ -18,6 +24,123 @@
             </a>
         {% endif %}
     </div>
+
+    <div class="erp-panel">
+        <div class="erp-panel-title">
+            Current Status
+        </div>
+
+        <div style="display:flex; gap:12px; align-items:center;">
+            <div>
+                <strong>Order:</strong>
+
+                <span class="status {{ order.status }}">
+                    {{ order.get_status_display }}
+                </span>
+            </div>
+
+            <div>
+                <strong>Payment:</strong>
+
+                <span class="status {{ order.calculated_payment_status }}">
+                    {{ order.calculated_payment_status_display }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
+        {% if order.status != "completed" and order.status != "cancelled" %}
+            <div class="erp-panel">
+                <div class="erp-panel-title">
+                    Order Workflow
+                </div>
+
+                <div class="form-actions">
+
+                    {% if order.status == "draft" %}
+                        <form
+                            method="post"
+                            action="{% url 'order_status_change' order.order_code 'confirmed' %}"
+                        >
+                            {% csrf_token %}
+
+                            <button class="btn-dark" type="submit">
+                                Confirm
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    {% if order.status == "confirmed" %}
+                        <form
+                            method="post"
+                            action="{% url 'order_status_change' order.order_code 'in_production' %}"
+                        >
+                            {% csrf_token %}
+
+                            <button class="btn-dark" type="submit">
+                                Start Production
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    {% if order.status == "in_production" %}
+                        <form
+                            method="post"
+                            action="{% url 'order_status_change' order.order_code 'ready' %}"
+                        >
+                            {% csrf_token %}
+
+                            <button class="btn-dark" type="submit">
+                                Mark Ready
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    {% if order.status == "ready" %}
+                        <form
+                            method="post"
+                            action="{% url 'order_status_change' order.order_code 'delivered' %}"
+                        >
+                            {% csrf_token %}
+
+                            <button class="btn-dark" type="submit">
+                                Deliver
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    {% if order.status == "delivered" %}
+                        <form
+                            method="post"
+                            action="{% url 'order_status_change' order.order_code 'completed' %}"
+                        >
+                            {% csrf_token %}
+
+                            <button class="btn-dark" type="submit">
+                                Complete
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    {% if order.status == "draft" or order.status == "confirmed" or order.status == "in_production" or order.status == "ready" %}
+                        <form
+                            method="post"
+                            action="{% url 'order_status_change' order.order_code 'cancelled' %}"
+                            onsubmit="return confirm('Cancel this order?');"
+                        >
+                            {% csrf_token %}
+
+                            <button class="btn-danger" type="submit">
+                                Cancel Order
+                            </button>
+                        </form>
+                    {% endif %}
+
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
 
     <div class="erp-panel">
         <div class="erp-panel-title">
@@ -66,13 +189,13 @@
 
     {% if order.status == "draft" %}
         {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
-            <div class="table-actions">
+            {% if order.status == "draft" %}
                 <a href="{% url 'order_edit' order.order_code %}">
                     <button class="btn-dark" type="button">
-                        + Add Item
+                        Edit Order
                     </button>
                 </a>
-            </div>
+            {% endif %}
         {% endif %}
     {% endif %}
 
@@ -318,7 +441,8 @@
             </tbody>
         </table>
     </div>
+    {% include "components/forms/audit_panel_full.html" with object=order %}
+
 </div>
 
-{% include "components/forms/audit_panel_full.html" with object=order %}
 {% endblock %}

@@ -118,9 +118,9 @@
             <div class="center-note">No description.</div>
         {% endif %}
     </div>
+    {% include "components/forms/audit_panel_full.html" with object=product %}
 
 </div>
 
 {% include "components/image_modal.html" %}
-{% include "components/forms/audit_panel_full.html" with object=product %}
 {% endblock %}

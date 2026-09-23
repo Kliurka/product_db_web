@@ -19,6 +19,10 @@
         Product Types
     </a>
 
+    <a href="{% url 'production_list' %}">
+        Production
+    </a>
+
     {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
 
         <a href="{% url 'discount_list' %}">

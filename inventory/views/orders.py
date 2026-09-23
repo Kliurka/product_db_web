@@ -6,6 +6,8 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.contrib import messages
+from django.core.exceptions import ValidationError
+from django.views.decorators.http import require_POST
 
 
 from inventory.forms import OrderForm
@@ -23,6 +25,8 @@ from inventory.utils.permissions import role_required
 from inventory.utils.sorting import get_sort_params
 from inventory.forms import PaymentForm
 from inventory.models import Order, Payment
+from inventory.utils.order_workflow import change_order_status
+
 
 # -------------------------
 # Orders
@@ -32,11 +36,14 @@ from inventory.models import Order, Payment
 @login_required
 @role_required("admin", "manager", "worker")
 def order_list(request):
-    orders = Order.objects.select_related("customer").all()
+    orders = Order.objects.select_related(
+        "customer",
+        "created_by",
+    ).all()
 
     q = request.GET.get("q", "").strip()
-    payment_status = request.GET.get("payment_status", "")
     status = request.GET.get("status", "")
+    payment_status = request.GET.get("payment_status", "")
 
     if q:
         orders = orders.filter(
@@ -44,17 +51,16 @@ def order_list(request):
             | Q(customer__name__icontains=q)
         )
 
-    if payment_status:
-        orders = orders.filter(payment_status=payment_status)
-
     if status:
         orders = orders.filter(status=status)
+
+    if payment_status:
+        orders = orders.filter(payment_status=payment_status)
 
     allowed_sort = [
         "order_code",
         "customer__name",
         "status",
-        "payment_status",
         "grand_total",
         "created_at",
     ]
@@ -76,13 +82,12 @@ def order_list(request):
             "q": q,
             "status": status,
             "payment_status": payment_status,
-            "statuses": Order.ORDER_STATUS,
+            "order_statuses": Order.ORDER_STATUS,
             "payment_statuses": Order.PAYMENT_STATUS,
             "sort": sort,
             "direction": direction,
         },
     )
-
 
 def create_order_item_and_reservation(
     order,
@@ -286,13 +291,23 @@ def order_detail(request, order_code):
 @role_required("admin", "manager")
 @transaction.atomic
 def order_edit(request, order_code):
+
     order = get_object_or_404(
         Order,
         order_code=order_code,
     )
 
-    # Forma neturi keisti užsakymo sukūrimo datos.
-    original_created_at = order.created_at
+    # Redaguoti galima tik juodraščio būsenos užsakymus
+    if order.status != "draft":
+        messages.error(
+            request,
+            "Only draft orders can be edited.",
+        )
+
+        return redirect(
+            "order_detail",
+            order_code=order.order_code,
+        )
 
     current_product_ids = list(
         order.items.exclude(
@@ -304,13 +319,17 @@ def order_edit(request, order_code):
     )
 
     if request.method == "POST":
+
         form = OrderForm(
             request.POST,
             instance=order,
         )
 
         if form.is_valid():
-            order = form.save(commit=False)
+
+            order = form.save(
+                commit=False,
+            )
 
             order.updated_at = timezone.now()
             order.updated_by = request.user.profile
@@ -342,6 +361,7 @@ def order_edit(request, order_code):
             taxes = request.POST.getlist("line_tax")
 
             for index, product_id in enumerate(product_ids):
+
                 if not product_id:
                     continue
 
@@ -351,7 +371,10 @@ def order_edit(request, order_code):
                 )
 
                 if product.status != "available":
-                    product_was_in_order = product.id in current_product_ids
+
+                    product_was_in_order = (
+                        product.id in current_product_ids
+                    )
 
                     if not product_was_in_order:
                         continue
@@ -377,11 +400,18 @@ def order_edit(request, order_code):
 
             recalculate_order(order)
 
+            messages.success(
+                request,
+                "Order updated successfully.",
+            )
+
             return redirect(
                 "order_detail",
                 order_code=order.order_code,
             )
+
     else:
+
         form = OrderForm(
             instance=order,
         )
@@ -393,7 +423,9 @@ def order_edit(request, order_code):
     products = Product.objects.filter(
         Q(status="available")
         | Q(id__in=current_product_ids)
-    ).distinct().order_by("code")
+    ).distinct().order_by(
+        "code",
+    )
 
     return render(
         request,
@@ -497,6 +529,42 @@ def payment_delete(request, payment_id):
         messages.success(
             request,
             "Payment deleted successfully.",
+        )
+
+    return redirect(
+        "order_detail",
+        order_code=order.order_code,
+    )
+    
+    
+@login_required
+@role_required("admin", "manager")
+@require_POST
+def order_status_change(request, order_code, new_status):
+    order = get_object_or_404(
+        Order,
+        order_code=order_code,
+    )
+
+    try:
+        updated_order = change_order_status(
+            order=order,
+            new_status=new_status,
+        )
+
+    except ValidationError as error:
+        messages.error(
+            request,
+            error.messages[0],
+        )
+
+    else:
+        messages.success(
+            request,
+            (
+                f"Order status changed to "
+                f"{updated_order.get_status_display()}."
+            ),
         )
 
     return redirect(

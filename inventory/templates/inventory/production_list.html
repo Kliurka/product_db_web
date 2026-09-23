@@ -1,0 +1,94 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="page">
+
+    <div class="subtitle">
+        Manufacturing
+    </div>
+
+    <h1>Production Queue</h1>
+
+    <div>
+        {{ orders|length }} orders
+    </div>
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>Order</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        {% for order in orders %}
+
+            <tr>
+
+                <td>
+                    <a class="code"
+                       href="{% url 'production_detail' order.order_code %}">
+                        {{ order.order_code }}
+                    </a>
+                </td>
+
+                <td>
+                    <b>{{ order.customer }}</b>
+                </td>
+
+                <td>
+                    {{ order.items.count }}
+                </td>
+
+                <td>
+                    <span class="status {{ order.status }}">
+                        {{ order.get_status_display }}
+                    </span>
+                </td>
+
+                <td>
+                    {{ order.created_at|date:"Y-m-d" }}
+                </td>
+
+                <td>
+
+                    <a href="{% url 'production_detail' order.order_code %}">
+                        Open
+                    </a>
+
+                    &nbsp;|&nbsp;
+
+                    <a
+                        href="{% url 'production_pdf' order.order_code %}"
+                        target="_blank"
+                    >
+                        PDF
+                    </a>
+
+                </td>
+
+            </tr>
+
+        {% empty %}
+
+            <tr>
+                <td colspan="6">
+                    No production orders.
+                </td>
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+{% endblock %}

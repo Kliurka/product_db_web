@@ -1,5 +1,6 @@
 {% extends "inventory/base.html" %}
 {% load sort_tags %}
+
 {% block content %}
 <div class="page">
 
@@ -8,69 +9,148 @@
     <div>{{ orders|length }} records</div>
 
     <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
-        <a href="/orders/add/">
-            {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
-                <a href="{% url 'order_add' %}">
-                    <button class="btn-dark" type="button">+ Add Order</button>
-                </a>
-            {% endif %}
-        </a>
+        {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
+            <a href="{% url 'order_add' %}">
+                <button class="btn-dark" type="button">
+                    + Add Order
+                </button>
+            </a>
+        {% endif %}
     </div>
 
     <form method="get" class="toolbar">
-        <input class="search" type="text" name="q" placeholder="Search by order code or customer..." value="{{ q }}">
+        <input
+            class="search"
+            type="text"
+            name="q"
+            placeholder="Search by order code or customer..."
+            value="{{ q }}"
+        >
 
-        <select name="payment_status">
-            <option value="">All Payments</option>
-            {% for s in payment_statuses %}
-                <option value="{{ s.0 }}" {% if payment_status == s.0 %}selected{% endif %}>
+        <select name="status">
+            <option value="">All Order Statuses</option>
+
+            {% for s in order_statuses %}
+                <option
+                    value="{{ s.0 }}"
+                    {% if status == s.0 %}selected{% endif %}
+                >
                     {{ s.1 }}
                 </option>
             {% endfor %}
         </select>
 
-        <button class="btn-green" type="submit">Filter</button>
+        <select name="payment_status">
+            <option value="">All Payments</option>
+
+            {% for s in payment_statuses %}
+                <option
+                    value="{{ s.0 }}"
+                    {% if payment_status == s.0 %}selected{% endif %}
+                >
+                    {{ s.1 }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <button class="btn-green" type="submit">
+            Filter
+        </button>
     </form>
 
     <table>
         <thead>
             <tr>
-                <th>{% sort_link 'order_code' 'Order Code' %}</th>
-                <th>{% sort_link 'customer__name' 'Customer' %}</th>
-                <th>{% sort_link 'payment_status' 'Payment' %}</th>
-                <th>{% sort_link 'partial_sum' 'Total' %}</th>
-                <th>Currency</th>
-                <th>{% sort_link 'created_at' 'Created At' %}</th>
-                <th>Created By</th>
-                <th></th>
+                <th>
+                    {% sort_link 'order_code' 'Order Code' %}
+                </th>
+
+                <th>
+                    {% sort_link 'customer__name' 'Customer' %}
+                </th>
+
+                <th>
+                    {% sort_link 'status' 'Order Status' %}
+                </th>
+
+                <th>
+                    Payment
+                </th>
+
+                <th>
+                    {% sort_link 'grand_total' 'Total' %}
+                </th>
+
+                <th>
+                    Currency
+                </th>
+
+                <th>
+                    {% sort_link 'created_at' 'Created At' %}
+                </th>
+
+                <th>
+                    Created By
+                </th>
+
+                <th>
+                    Actions
+                </th>
             </tr>
         </thead>
 
         <tbody>
-        {% for o in orders %}
+            {% for o in orders %}
             <tr>
                 <td>
-                    <a class="code" href="/admin/inventory/order/{{ o.id }}/change/">
-                        <a class="code" href="{% url 'order_detail' o.order_code %}">{{ o.order_code }}</a>
+                    <a class="code" href="{% url 'order_detail' o.order_code %}">
+                        {{ o.order_code }}
                     </a>
                 </td>
-                <td><b>{{ o.customer }}</b></td>
+
                 <td>
-                    <span class="status {{ o.payment_status }}">
-                        {{ o.payment_status }}
+                    <b>{{ o.customer }}</b>
+                </td>
+
+                <td>
+                    <span class="status {{ o.status }}">
+                        {{ o.get_status_display }}
                     </span>
                 </td>
-                <td><b>{{ o.partial_sum }}</b></td>
+
+                <td>
+                    <span class="status {{ o.calculated_payment_status }}">
+                        {{ o.calculated_payment_status_display }}
+                    </span>
+                </td>
+
+                <td>
+                    <b>{{ o.grand_total|floatformat:2 }}</b>
+                </td>
+
                 <td>EUR</td>
-                <td>{{ o.created_at|date:"Y-m-d" }}</td>
-                <td>{{ o.created_by }}</td>
-                <td>...</td>
+
+                <td>
+                    {{ o.created_at|date:"Y-m-d" }}
+                </td>
+
+                <td>
+                    {{ o.created_by|default:"—" }}
+                </td>
+
+                <td>
+                    <a href="{% url 'order_detail' o.order_code %}">
+                        View
+                    </a>
+                </td>
             </tr>
-        {% empty %}
-            <tr>
-                <td colspan="8">No orders found.</td>
-            </tr>
-        {% endfor %}
+            {% empty %}
+                <tr>
+                    <td colspan="9">
+                        No orders found.
+                    </td>
+                </tr>
+            {% endfor %}
         </tbody>
     </table>
 

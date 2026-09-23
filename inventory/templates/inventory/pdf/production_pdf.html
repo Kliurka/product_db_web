@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <title>
+        Production {{ order.order_code }}
+    </title>
+
+    <style>
+        @page {
+            size: A4;
+            margin: 18mm 15mm 20mm 15mm;
+
+            @bottom-left {
+                content: "{{ company.name }}";
+                font-size: 8px;
+                color: #666;
+            }
+
+            @bottom-center {
+                content: "Production {{ order.order_code }}";
+                font-size: 8px;
+                color: #666;
+            }
+
+            @bottom-right {
+                content: "Page " counter(page) " of " counter(pages);
+                font-size: 8px;
+                color: #666;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            color: #111;
+            font-family: DejaVu Sans, sans-serif;
+            font-size: 10px;
+            line-height: 1.4;
+        }
+
+        h1,
+        h2,
+        p {
+            margin-top: 0;
+        }
+
+        .header {
+            width: 100%;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #111;
+        }
+
+        .header td {
+            vertical-align: top;
+        }
+
+        .company-name {
+            margin: 0;
+            font-size: 22px;
+            letter-spacing: 0.5px;
+        }
+
+        .document-title {
+            text-align: right;
+        }
+
+        .document-title h1 {
+            margin: 0;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
+        .document-number {
+            margin-top: 5px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .document-date {
+            margin-top: 4px;
+            color: #444;
+        }
+
+        .info-table {
+            width: 100%;
+            margin-bottom: 18px;
+            border-spacing: 0;
+        }
+
+        .info-table td {
+            width: 50%;
+            vertical-align: top;
+        }
+
+        .info-table td:first-child {
+            padding-right: 8px;
+        }
+
+        .info-table td:last-child {
+            padding-left: 8px;
+        }
+
+        .info-box {
+            min-height: 100px;
+            padding: 10px;
+            border: 1px solid #aaa;
+        }
+
+        .box-title {
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #ccc;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .info-row {
+            margin-bottom: 4px;
+        }
+
+        .label {
+            color: #555;
+        }
+
+        .value {
+            font-weight: bold;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 2px 6px;
+            border: 1px solid #444;
+            font-size: 9px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .section-title {
+            margin: 18px 0 7px 0;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #555;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .items-table thead {
+            display: table-header-group;
+        }
+
+        .items-table tr {
+            page-break-inside: avoid;
+        }
+
+        .items-table th {
+            padding: 6px 5px;
+            border: 1px solid #555;
+            background: #e8e8e8;
+            font-size: 8px;
+            text-align: left;
+            text-transform: uppercase;
+        }
+
+        .items-table td {
+            padding: 7px 5px;
+            border: 1px solid #999;
+            vertical-align: top;
+        }
+
+        .code-column {
+            width: 13%;
+        }
+
+        .product-column {
+            width: 29%;
+        }
+
+        .dimension-column {
+            width: 16%;
+        }
+
+        .texture-column {
+            width: 13%;
+        }
+
+        .quantity-column {
+            width: 8%;
+        }
+
+        .check-column {
+            width: 7%;
+            text-align: center;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .checkbox {
+            display: inline-block;
+            width: 13px;
+            height: 13px;
+            border: 1px solid #111;
+        }
+
+        .notes-box {
+            min-height: 100px;
+            margin-top: 16px;
+            padding: 10px;
+            border: 1px solid #aaa;
+        }
+
+        .signatures {
+            width: 100%;
+            margin-top: 32px;
+            page-break-inside: avoid;
+        }
+
+        .signatures td {
+            width: 50%;
+            padding-right: 25px;
+            vertical-align: bottom;
+        }
+
+        .signature-line {
+            height: 34px;
+            border-bottom: 1px solid #111;
+        }
+
+        .signature-label {
+            margin-top: 4px;
+            color: #555;
+            font-size: 8px;
+            text-align: center;
+        }
+
+        .empty {
+            padding: 15px;
+            color: #666;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <table class="header">
+        <tr>
+            <td>
+                <h1 class="company-name">
+                    {{ company.name }}
+                </h1>
+            </td>
+
+            <td class="document-title">
+                <h1>PRODUCTION</h1>
+
+                <div class="document-number">
+                    {{ order.order_code }}
+                </div>
+
+                <div class="document-date">
+                    {{ order.created_at|date:"Y-m-d" }}
+                </div>
+            </td>
+        </tr>
+    </table>
+
+
+    <table class="info-table">
+        <tr>
+            <td>
+                <div class="info-box">
+                    <div class="box-title">
+                        Customer
+                    </div>
+
+                    <div class="info-row">
+                        <span class="value">
+                            {{ order.customer }}
+                        </span>
+                    </div>
+
+                    {% if order.customer.phone %}
+                        <div class="info-row">
+                            <span class="label">Phone:</span>
+                            {{ order.customer.phone }}
+                        </div>
+                    {% endif %}
+
+                    {% if order.customer.email %}
+                        <div class="info-row">
+                            <span class="label">Email:</span>
+                            {{ order.customer.email }}
+                        </div>
+                    {% endif %}
+                </div>
+            </td>
+
+            <td>
+                <div class="info-box">
+                    <div class="box-title">
+                        Production information
+                    </div>
+
+                    <div class="info-row">
+                        <span class="label">Order:</span>
+
+                        <span class="value">
+                            {{ order.order_code }}
+                        </span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="label">Status:</span>
+
+                        <span class="status">
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="label">Created:</span>
+                        {{ order.created_at|date:"Y-m-d H:i" }}
+                    </div>
+
+                    {% if order.updated_at %}
+                        <div class="info-row">
+                            <span class="label">Updated:</span>
+                            {{ order.updated_at|date:"Y-m-d H:i" }}
+                        </div>
+                    {% endif %}
+                </div>
+            </td>
+        </tr>
+    </table>
+
+
+    <h2 class="section-title">
+        Products
+    </h2>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th class="code-column">
+                    Code
+                </th>
+
+                <th class="product-column">
+                    Product
+                </th>
+
+                <th class="dimension-column">
+                    Dimensions
+                </th>
+
+                <th class="texture-column">
+                    Texture
+                </th>
+
+                <th class="quantity-column center">
+                    Qty
+                </th>
+
+                <th class="check-column center">
+                    Cut
+                </th>
+
+                <th class="check-column center">
+                    CNC
+                </th>
+
+                <th class="check-column center">
+                    Polish
+                </th>
+
+                <th class="check-column center">
+                    Packed
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for item in items %}
+                <tr>
+                    <td>
+                        {{ item.product_code }}
+                    </td>
+
+                    <td>
+                        <strong>
+                            {{ item.product_name }}
+                        </strong>
+                    </td>
+
+                    <td>
+                        {% if item.product %}
+                            {{ item.product.dimension_x|default:"-" }}
+                            ×
+                            {{ item.product.dimension_y|default:"-" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if item.product and item.product.texture %}
+                            {{ item.product.texture }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td class="center">
+                        {{ item.quantity }}
+                    </td>
+
+                    <td class="center">
+                        <span class="checkbox"></span>
+                    </td>
+
+                    <td class="center">
+                        <span class="checkbox"></span>
+                    </td>
+
+                    <td class="center">
+                        <span class="checkbox"></span>
+                    </td>
+
+                    <td class="center">
+                        <span class="checkbox"></span>
+                    </td>
+                </tr>
+
+            {% empty %}
+                <tr>
+                    <td colspan="9" class="empty">
+                        No products in this order.
+                    </td>
+                </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+
+
+    <div class="notes-box">
+        <div class="box-title">
+            Production notes
+        </div>
+
+        {% if order.description %}
+            {{ order.description|linebreaksbr }}
+        {% else %}
+            <span class="label">
+                No production notes.
+            </span>
+        {% endif %}
+    </div>
+
+
+    <table class="signatures">
+        <tr>
+            <td>
+                <div class="signature-line"></div>
+
+                <div class="signature-label">
+                    Prepared by
+                </div>
+            </td>
+
+            <td>
+                <div class="signature-line"></div>
+
+                <div class="signature-label">
+                    Checked by
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <div class="signature-line"></div>
+
+                <div class="signature-label">
+                    Packed by
+                </div>
+            </td>
+
+            <td>
+                <div class="signature-line"></div>
+
+                <div class="signature-label">
+                    Delivered to warehouse
+                </div>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

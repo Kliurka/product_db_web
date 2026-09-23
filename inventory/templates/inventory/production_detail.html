@@ -34,6 +34,47 @@
     </div>
 </div>
 
+{% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
+    <div class="card">
+        <h2>Production workflow</h2>
+
+        <div class="form-actions">
+            {% if order.status == "confirmed" %}
+                <form method="post" action="{% url 'order_status_change' order.order_code 'in_production' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="redirect_to" value="production_detail">
+
+                    <button class="btn-dark" type="submit">
+                        Start Production
+                    </button>
+                </form>
+            {% endif %}
+
+            {% if order.status == "in_production" %}
+                <form method="post" action="{% url 'order_status_change' order.order_code 'ready' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="redirect_to" value="production_detail">
+
+                    <button class="btn-dark" type="submit">
+                        Mark Ready
+                    </button>
+                </form>
+            {% endif %}
+
+            {% if order.status == "ready" %}
+                <form method="post" action="{% url 'order_status_change' order.order_code 'delivered' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="redirect_to" value="production_detail">
+
+                    <button class="btn-dark" type="submit">
+                        Deliver
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+
 
 <div class="detail-grid">
 

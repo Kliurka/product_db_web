@@ -558,6 +558,107 @@ class OrderItem(models.Model):
     def __str__(self):
         return f"{self.product_code} ({self.order.order_code})"
 
+class ProductionOperation(models.Model):
+    name = models.CharField(
+        max_length=100,
+        unique=True,
+    )
+
+    description = models.TextField(
+        blank=True,
+        null=True,
+    )
+
+    sort_order = models.PositiveIntegerField(
+        default=0,
+    )
+
+    active = models.BooleanField(
+        default=True,
+    )
+
+    class Meta:
+        db_table = "production_operations"
+        ordering = ["sort_order", "name"]
+
+    def __str__(self):
+        return self.name
+
+
+class OrderItemOperation(models.Model):
+    OPERATION_STATUS = [
+        ("pending", "Pending"),
+        ("in_progress", "In Progress"),
+        ("completed", "Completed"),
+        ("skipped", "Skipped"),
+    ]
+
+    order_item = models.ForeignKey(
+        OrderItem,
+        on_delete=models.CASCADE,
+        related_name="production_operations",
+        db_column="order_item_id",
+    )
+
+    operation = models.ForeignKey(
+        ProductionOperation,
+        on_delete=models.PROTECT,
+        related_name="order_item_operations",
+        db_column="operation_id",
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=OPERATION_STATUS,
+        default="pending",
+    )
+
+    sort_order = models.PositiveIntegerField(
+        default=0,
+    )
+
+    assigned_to = models.ForeignKey(
+        AppUser,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="assigned_production_operations",
+        db_column="assigned_to",
+    )
+
+    started_at = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+
+    completed_at = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+
+    note = models.TextField(
+        blank=True,
+        null=True,
+    )
+
+    class Meta:
+        db_table = "order_item_operations"
+        ordering = ["sort_order", "id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["order_item", "operation"],
+                name="unique_order_item_operation",
+            ),
+        ]
+
+    def __str__(self):
+        return (
+            f"{self.order_item.order.order_code} - "
+            f"{self.order_item.product_code} - "
+            f"{self.operation.name}"
+        )
+
+
 class Payment(models.Model):
     PAYMENT_TYPE = [
         ("cash", "Cash"),

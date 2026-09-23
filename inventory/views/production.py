@@ -107,8 +107,7 @@ def production_operation_add(request, order_code, item_id):
     )
 
     return redirect(
-        "production_detail",
-        order_code=order.order_code,
+        f"/production/{order.order_code}/#item-{item.id}"
     )
 
 
@@ -157,8 +156,7 @@ def production_operation_status(request, order_code, operation_id):
     )
 
     return redirect(
-        "production_detail",
-        order_code=order_code,
+        f"/production/{order_code}/#item-{item_operation.order_item_id}"
     )
 
 
@@ -172,9 +170,9 @@ def production_operation_remove(request, order_code, operation_id):
         order_item__order__order_code=order_code,
     )
 
+    item_id = item_operation.order_item_id
     item_operation.delete()
 
     return redirect(
-        "production_detail",
-        order_code=order_code,
+        f"/production/{order_code}/#item-{item_id}"
     )

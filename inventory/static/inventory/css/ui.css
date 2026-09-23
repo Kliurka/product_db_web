@@ -343,3 +343,24 @@ textarea {
         padding: 7px 5px;
     }
 }
+
+
+.production-products-table {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 800px) {
+    .production-products-table table {
+        min-width: 760px;
+    }
+
+    .production-operations-cell {
+        padding: 12px;
+    }
+
+    .production-operation-row {
+        grid-template-columns: 120px minmax(300px, 1fr) auto;
+    }
+}

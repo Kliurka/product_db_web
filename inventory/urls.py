@@ -1,7 +1,13 @@
 from django.urls import path
 
 from inventory.views import orders
-from inventory.views.production import production_list, production_detail
+from inventory.views.production import (
+    production_list,
+    production_detail,
+    production_operation_add,
+    production_operation_status,
+    production_operation_remove,
+)
 from inventory.views.reports import order_pdf, production_pdf
 
 from . import views
@@ -66,6 +72,9 @@ urlpatterns = [
     
     path("production/", production_list, name="production_list"),
     path("production/<str:order_code>/", production_detail, name="production_detail"),
+    path("production/<str:order_code>/items/<int:item_id>/operations/add/", production_operation_add, name="production_operation_add"),
+    path("production/<str:order_code>/operations/<int:operation_id>/status/", production_operation_status, name="production_operation_status"),
+    path("production/<str:order_code>/operations/<int:operation_id>/remove/", production_operation_remove, name="production_operation_remove"),
     
     path("reports/order/<str:order_code>/pdf/", order_pdf, name="order_pdf"),
     path("reports/order/<str:order_code>/production/", production_pdf, name="production_pdf"),

@@ -241,65 +241,105 @@ textarea {
 
 .production-operation-row {
     display: grid;
-    grid-template-columns: minmax(120px, 1fr) minmax(260px, 2fr) auto;
+    grid-template-columns: 150px minmax(260px, 390px) auto;
     gap: 8px;
     align-items: center;
-    border-bottom: 1px solid #ccc;
-    padding: 6px 0;
+    padding: 4px 0;
 }
 
 .production-operation-name {
-    font-weight: bold;
+    font-weight: normal;
     font-size: 13px;
+    border: 1px solid #aaa;
+    background: #f4f4ef;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
 .production-operation-status-form {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) auto;
     gap: 8px;
     align-items: center;
 }
 
 .production-operation-status-form select {
     margin: 0;
-    flex: 1;
 }
 
 .production-operation-status-form button,
 .production-operation-remove-form button {
     white-space: nowrap;
+    margin: 0;
+}
+
+.production-operation-remove-form {
+    margin: 0;
 }
 
 .production-operation-add-form {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(260px, 1fr) auto;
     gap: 8px;
     margin-top: 12px;
-    max-width: 620px;
+    width: 100%;
 }
 
 .production-operation-add-form select {
     margin: 0;
-    flex: 1;
 }
 
 @media (max-width: 800px) {
     .production-operation-row {
-        grid-template-columns: 1fr;
-        gap: 5px;
-        padding: 10px 0;
+        grid-template-columns: 110px minmax(0, 1fr) auto;
+        gap: 6px;
     }
 
     .production-operation-status-form {
-        display: grid;
-        grid-template-columns: 1fr auto;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 6px;
     }
 
-    .production-operation-remove-form {
-        justify-self: start;
+    .production-operation-name {
+        padding: 9px 7px;
+    }
+
+    .production-operation-status-form select,
+    .production-operation-status-form button,
+    .production-operation-remove-form button {
+        padding: 8px 6px;
     }
 
     .production-operation-add-form {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        max-width: none;
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+}
+
+@media (max-width: 520px) {
+    .production-operation-row {
+        grid-template-columns: 82px minmax(0, 1fr) auto;
+        gap: 4px;
+    }
+
+    .production-operation-status-form {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 4px;
+    }
+
+    .production-operation-name {
+        font-size: 12px;
+        padding: 8px 5px;
+    }
+
+    .production-operation-status-form select {
+        font-size: 12px;
+        padding: 7px 4px;
+    }
+
+    .production-operation-status-form button,
+    .production-operation-remove-form button,
+    .production-operation-add-form button {
+        font-size: 12px;
+        padding: 7px 5px;
     }
 }

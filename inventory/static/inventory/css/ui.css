@@ -239,9 +239,9 @@ textarea {
     gap: 6px;
 }
 
-.production-operation-row {
+ .production-operation-row {
     display: grid;
-    grid-template-columns: 150px minmax(260px, 390px) auto;
+    grid-template-columns: 150px 240px auto;
     gap: 8px;
     align-items: center;
     padding: 4px 0;
@@ -256,15 +256,17 @@ textarea {
     box-sizing: border-box;
 }
 
-.production-operation-status-form {
-    display: grid;
-    grid-template-columns: minmax(180px, 1fr) auto;
+ .production-operation-status-form {
+    display: block;
+    width: 240px;
     gap: 8px;
     align-items: center;
 }
 
 .production-operation-status-form select {
     margin: 0;
+    width: 240px;
+    max-width: 100%;
 }
 
 .production-operation-status-form button,
@@ -291,13 +293,16 @@ textarea {
 
 @media (max-width: 800px) {
     .production-operation-row {
-        grid-template-columns: 110px minmax(0, 1fr) auto;
+        grid-template-columns: 110px 170px auto;
         gap: 6px;
     }
 
     .production-operation-status-form {
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 6px;
+        width: 170px;
+    }
+
+    .production-operation-status-form select {
+        width: 170px;
     }
 
     .production-operation-name {
@@ -317,13 +322,16 @@ textarea {
 
 @media (max-width: 520px) {
     .production-operation-row {
-        grid-template-columns: 82px minmax(0, 1fr) auto;
+        grid-template-columns: 82px 145px auto;
         gap: 4px;
     }
 
     .production-operation-status-form {
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 4px;
+        width: 145px;
+    }
+
+    .production-operation-status-form select {
+        width: 145px;
     }
 
     .production-operation-name {

@@ -567,6 +567,17 @@ def order_status_change(request, order_code, new_status):
             ),
         )
 
+    redirect_to = request.POST.get(
+        "redirect_to",
+        "order_detail",
+    )
+
+    if redirect_to == "production_detail":
+        return redirect(
+            "production_detail",
+            order_code=order.order_code,
+        )
+
     return redirect(
         "order_detail",
         order_code=order.order_code,

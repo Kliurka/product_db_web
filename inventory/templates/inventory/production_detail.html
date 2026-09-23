@@ -176,53 +176,60 @@
                         <td>{{ item.quantity }}</td>
                     </tr>
 
-                    <tr>
-                        <td colspan="6">
-                            <strong>Operations:</strong>
+                    <tr id="item-{{ item.id }}">
+                        <td colspan="6" class="production-operations-cell">
+                            <div class="production-operations-title">
+                                Operations
+                            </div>
 
-                            {% for item_operation in item.production_operations.all %}
-                                <form
-                                    method="post"
-                                    action="{% url 'production_operation_status' order.order_code item_operation.id %}"
-                                    style="display:inline-block; margin:4px 6px 4px 0;"
-                                >
-                                    {% csrf_token %}
+                            <div class="production-operations-list">
+                                {% for item_operation in item.production_operations.all %}
+                                    <div class="production-operation-row">
+                                        <div class="production-operation-name">
+                                            {{ item_operation.operation.name }}
+                                        </div>
 
-                                    <span class="status {{ item_operation.status }}">
-                                        {{ item_operation.operation.name }}:
-                                        {{ item_operation.get_status_display }}
-                                    </span>
+                                        <form
+                                            class="production-operation-status-form"
+                                            method="post"
+                                            action="{% url 'production_operation_status' order.order_code item_operation.id %}"
+                                        >
+                                            {% csrf_token %}
 
-                                    <select name="status">
-                                        {% for value, label in item_operation.OPERATION_STATUS %}
-                                            <option value="{{ value }}" {% if item_operation.status == value %}selected{% endif %}>
-                                                {{ label }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
+                                            <select name="status">
+                                                {% for value, label in item_operation.OPERATION_STATUS %}
+                                                    <option value="{{ value }}" {% if item_operation.status == value %}selected{% endif %}>
+                                                        {{ label }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
 
-                                    <button type="submit">Save</button>
-                                </form>
+                                            <button type="submit">Save</button>
+                                        </form>
 
-                                {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
-                                    <form
-                                        method="post"
-                                        action="{% url 'production_operation_remove' order.order_code item_operation.id %}"
-                                        style="display:inline-block;"
-                                        onsubmit="return confirm('Remove this operation?');"
-                                    >
-                                        {% csrf_token %}
-                                        <button type="submit">Remove</button>
-                                    </form>
-                                {% endif %}
-                            {% empty %}
-                                <span>No operations assigned.</span>
-                            {% endfor %}
+                                        {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
+                                            <form
+                                                class="production-operation-remove-form"
+                                                method="post"
+                                                action="{% url 'production_operation_remove' order.order_code item_operation.id %}"
+                                                onsubmit="return confirm('Remove this operation?');"
+                                            >
+                                                {% csrf_token %}
+                                                <button type="submit">Remove</button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                {% empty %}
+                                    <div class="center-note">
+                                        No operations assigned.
+                                    </div>
+                                {% endfor %}
+                            </div>
 
                             <form
+                                class="production-operation-add-form"
                                 method="post"
                                 action="{% url 'production_operation_add' order.order_code item.id %}"
-                                style="margin-top:8px;"
                             >
                                 {% csrf_token %}
 

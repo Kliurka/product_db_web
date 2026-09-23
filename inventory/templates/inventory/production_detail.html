@@ -197,7 +197,7 @@
                                         >
                                             {% csrf_token %}
 
-                                            <select name="status">
+                                            <select name="status" onchange="this.form.submit()">
                                                 {% for value, label in item_operation.OPERATION_STATUS %}
                                                     <option value="{{ value }}" {% if item_operation.status == value %}selected{% endif %}>
                                                         {{ label }}
@@ -205,7 +205,6 @@
                                                 {% endfor %}
                                             </select>
 
-                                            <button type="submit">Save</button>
                                         </form>
 
                                         {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}

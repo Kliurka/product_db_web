@@ -5,142 +5,127 @@
 {% endblock %}
 
 {% block content %}
+<div class="page">
 
-<div class="page-header">
-    <div>
-        <h1>Production</h1>
+    {% include "components/layout/page_header.html" with subtitle="Manufacturing / Production" title=order.order_code %}
 
-        <p>
-            Order
-            <strong>{{ order.order_code }}</strong>
-        </p>
-    </div>
-
-    <div class="page-actions">
-        <a
-            href="{% url 'production_list' %}"
-            class="button"
-        >
-            ← Back to production
+    <div class="top-actions">
+        <a href="{% url 'production_list' %}">
+            <button type="button">← Back to production</button>
         </a>
 
-        <a
-            href="{% url 'production_pdf' order.order_code %}"
-            target="_blank"
-            class="button"
-        >
-            🏭 Production PDF
+        <a href="{% url 'production_pdf' order.order_code %}" target="_blank">
+            <button type="button">Production PDF</button>
         </a>
     </div>
-</div>
 
-{% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
-    <div class="card">
-        <h2>Production workflow</h2>
-
-        <div class="form-actions">
-            {% if order.status == "confirmed" %}
-                <form method="post" action="{% url 'order_status_change' order.order_code 'in_production' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="redirect_to" value="production_detail">
-
-                    <button class="btn-dark" type="submit">
-                        Start Production
-                    </button>
-                </form>
-            {% endif %}
-
-            {% if order.status == "in_production" %}
-                <form method="post" action="{% url 'order_status_change' order.order_code 'ready' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="redirect_to" value="production_detail">
-
-                    <button class="btn-dark" type="submit">
-                        Mark Ready
-                    </button>
-                </form>
-            {% endif %}
-
-            {% if order.status == "ready" %}
-                <form method="post" action="{% url 'order_status_change' order.order_code 'delivered' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="redirect_to" value="production_detail">
-
-                    <button class="btn-dark" type="submit">
-                        Deliver
-                    </button>
-                </form>
-            {% endif %}
+    <div class="erp-panel">
+        <div class="erp-panel-title">
+            Current Status
         </div>
-    </div>
-{% endif %}
 
-
-<div class="detail-grid">
-
-    <div class="card">
-        <h2>Order information</h2>
-
-        <dl class="detail-list">
-            <dt>Order</dt>
-            <dd>{{ order.order_code }}</dd>
-
-            <dt>Status</dt>
-            <dd>{{ order.get_status_display }}</dd>
-
-            <dt>Created</dt>
-            <dd>{{ order.created_at|date:"Y-m-d H:i" }}</dd>
-
-            {% if order.updated_at %}
-                <dt>Updated</dt>
-                <dd>{{ order.updated_at|date:"Y-m-d H:i" }}</dd>
-            {% endif %}
-
-            {% if order.created_by %}
-                <dt>Created by</dt>
-                <dd>{{ order.created_by }}</dd>
-            {% endif %}
-        </dl>
-    </div>
-
-
-    <div class="card">
-        <h2>Customer</h2>
-
-        <dl class="detail-list">
-            <dt>Name</dt>
-            <dd>{{ order.customer }}</dd>
-
-            {% if order.customer.phone %}
-                <dt>Phone</dt>
-                <dd>{{ order.customer.phone }}</dd>
-            {% endif %}
-
-            {% if order.customer.email %}
-                <dt>Email</dt>
-                <dd>{{ order.customer.email }}</dd>
-            {% endif %}
-
-            {% if order.customer.address %}
-                <dt>Address</dt>
-                <dd>{{ order.customer.address }}</dd>
-            {% endif %}
-        </dl>
-    </div>
-
-</div>
-
-
-<div class="card">
-    <div class="card-header">
-        <h2>Products</h2>
-
-        <span>
-            {{ items|length }} item{{ items|length|pluralize }}
+        <span class="status {{ order.status }}">
+            {{ order.get_status_display }}
         </span>
     </div>
 
-    <div class="table-wrapper">
+    {% if request.user.profile.role.name == "admin" or request.user.profile.role.name == "manager" %}
+        {% if order.status == "confirmed" or order.status == "in_production" or order.status == "ready" %}
+            <div class="erp-panel">
+                <div class="erp-panel-title">
+                    Production Workflow
+                </div>
+
+                <div class="form-actions">
+                    {% if order.status == "confirmed" %}
+                        <form method="post" action="{% url 'order_status_change' order.order_code 'in_production' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="redirect_to" value="production_detail">
+
+                            <button class="btn-dark" type="submit">
+                                Start Production
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    {% if order.status == "in_production" %}
+                        <form method="post" action="{% url 'order_status_change' order.order_code 'ready' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="redirect_to" value="production_detail">
+
+                            <button class="btn-dark" type="submit">
+                                Mark Ready
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    {% if order.status == "ready" %}
+                        <form method="post" action="{% url 'order_status_change' order.order_code 'delivered' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="redirect_to" value="production_detail">
+
+                            <button class="btn-dark" type="submit">
+                                Deliver
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+
+    <div class="erp-panel">
+        <div class="erp-panel-title">
+            01 — Order Information
+        </div>
+
+        <p><b>Order:</b> {{ order.order_code }}</p>
+        <p>
+            <b>Status:</b>
+            <span class="status {{ order.status }}">
+                {{ order.get_status_display }}
+            </span>
+        </p>
+        <p><b>Created:</b> {{ order.created_at|date:"Y-m-d H:i" }}</p>
+
+        {% if order.updated_at %}
+            <p><b>Updated:</b> {{ order.updated_at|date:"Y-m-d H:i" }}</p>
+        {% endif %}
+
+        {% if order.created_by %}
+            <p><b>Created by:</b> {{ order.created_by }}</p>
+        {% endif %}
+    </div>
+
+    <div class="erp-panel">
+        <div class="erp-panel-title">
+            02 — Customer
+        </div>
+
+        <p><b>Name:</b> {{ order.customer }}</p>
+
+        {% if order.customer.phone %}
+            <p><b>Phone:</b> {{ order.customer.phone }}</p>
+        {% endif %}
+
+        {% if order.customer.email %}
+            <p><b>Email:</b> {{ order.customer.email }}</p>
+        {% endif %}
+
+        {% if order.customer.address %}
+            <p><b>Address:</b> {{ order.customer.address }}</p>
+        {% endif %}
+    </div>
+
+    <div class="erp-panel">
+        <div class="erp-panel-title">
+            03 — Products
+        </div>
+
+        <div class="table-actions">
+            {{ items|length }} item{{ items|length|pluralize }}
+        </div>
+
         <table>
             <thead>
                 <tr>
@@ -156,14 +141,10 @@
             <tbody>
                 {% for item in items %}
                     <tr>
-                        <td>
-                            {{ item.product_code }}
-                        </td>
+                        <td>{{ item.product_code }}</td>
 
                         <td>
-                            <strong>
-                                {{ item.product_name }}
-                            </strong>
+                            <strong>{{ item.product_name }}</strong>
                         </td>
 
                         <td>
@@ -192,11 +173,8 @@
                             {% endif %}
                         </td>
 
-                        <td>
-                            {{ item.quantity }}
-                        </td>
+                        <td>{{ item.quantity }}</td>
                     </tr>
-
                 {% empty %}
                     <tr>
                         <td colspan="6">
@@ -207,19 +185,20 @@
             </tbody>
         </table>
     </div>
+
+    <div class="erp-panel">
+        <div class="erp-panel-title">
+            04 — Production Notes
+        </div>
+
+        {% if order.description %}
+            {{ order.description|linebreaks }}
+        {% else %}
+            <div class="center-note">
+                No production notes.
+            </div>
+        {% endif %}
+    </div>
+
 </div>
-
-
-<div class="card">
-    <h2>Production notes</h2>
-
-    {% if order.description %}
-        <p>
-            {{ order.description|linebreaksbr }}
-        </p>
-    {% else %}
-        <p>No production notes.</p>
-    {% endif %}
-</div>
-
 {% endblock %}

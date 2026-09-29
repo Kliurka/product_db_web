@@ -17,6 +17,10 @@
         <button type="button" onclick="openProductExportDialog()">
             Export
         </button>
+
+        <button type="button" onclick="printSelectedQrLabels()">
+            QR Labels
+        </button>
     </div>
 
     <form method="get" id="product-filter-form" class="product-column-filter-form">
@@ -87,6 +91,14 @@
             <table class="product-list-table">
                 <thead>
                     <tr>
+                        <th class="product-select-column">
+                            <input
+                                type="checkbox"
+                                id="select-all-products"
+                                title="Select all filtered products"
+                                onchange="toggleAllProducts(this.checked)"
+                            >
+                        </th>
                         <th>{% sort_link 'code' 'Code' %}</th>
                         <th>{% sort_link 'name' 'Name' %}</th>
                         <th>{% sort_link 'type__name' 'Type' %}</th>
@@ -104,6 +116,7 @@
                     </tr>
 
                     <tr class="product-filter-row">
+                        <th></th>
                         <th>
                             <input type="text" name="code" placeholder="Code" value="{{ code_filter }}">
                         </th>
@@ -241,6 +254,14 @@
                 <tbody>
                     {% for p in products %}
                     <tr>
+                        <td class="product-select-column">
+                            <input
+                                type="checkbox"
+                                class="product-row-checkbox"
+                                name="qr_product"
+                                value="{{ p.id }}"
+                            >
+                        </td>
                         <td><a class="code" href="{% url 'product_detail' p.code %}">{{ p.code }}</a></td>
                         <td><b>{{ p.name }}</b></td>
                         <td>{{ p.type }}</td>
@@ -258,7 +279,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="14">No products found.</td>
+                        <td colspan="15">No products found.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -269,6 +290,42 @@
 </div>
 
 <script>
+function toggleAllProducts(checked) {
+    document
+        .querySelectorAll(".product-row-checkbox")
+        .forEach(function (checkbox) {
+            checkbox.checked = checked;
+        });
+}
+
+function printSelectedQrLabels() {
+    const form = document.getElementById("product-filter-form");
+    const selected = Array.from(
+        document.querySelectorAll(".product-row-checkbox:checked")
+    );
+
+    const params = new URLSearchParams();
+
+    if (selected.length > 0) {
+        selected.forEach(function (checkbox) {
+            params.append("ids", checkbox.value);
+        });
+    } else {
+        const formData = new FormData(form);
+
+        for (const [key, value] of formData.entries()) {
+            if (key !== "columns" && key !== "qr_product") {
+                params.append(key, value);
+            }
+        }
+    }
+
+    window.open(
+        "{% url 'product_labels' %}?" + params.toString(),
+        "_blank"
+    );
+}
+
 function openProductExportDialog() {
     document.getElementById("product-export-dialog").showModal();
 }

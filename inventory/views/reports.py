@@ -118,6 +118,104 @@ def production_pdf(request, order_code):
     return response
 
 
+PRODUCT_EXPORT_COLUMNS = [
+    ("code", "Code", 16),
+    ("name", "Name", 26),
+    ("type", "Type", 18),
+    ("texture", "Texture", 18),
+    ("dimension_x", "Dim X", 12),
+    ("dimension_y", "Dim Y", 12),
+    ("description", "Description", 34),
+    ("storage_location", "Storage Location", 18),
+    ("price", "Price", 12),
+    ("status", "Status", 14),
+    ("created_at", "Created At", 18),
+    ("created_by", "Created By", 16),
+    ("updated_at", "Updated At", 18),
+    ("updated_by", "Updated By", 16),
+]
+
+
+def _selected_product_export_columns(request):
+    selected = request.GET.getlist("columns")
+    valid_keys = {
+        key
+        for key, label, width in PRODUCT_EXPORT_COLUMNS
+    }
+
+    selected = [
+        key
+        for key in selected
+        if key in valid_keys
+    ]
+
+    if not selected:
+        selected = [
+            key
+            for key, label, width in PRODUCT_EXPORT_COLUMNS
+        ]
+
+    return [
+        (key, label, width)
+        for key, label, width in PRODUCT_EXPORT_COLUMNS
+        if key in selected
+    ]
+
+
+def _product_export_value(product, key):
+    if key == "code":
+        return product.code
+
+    if key == "name":
+        return product.name
+
+    if key == "type":
+        return str(product.type or "")
+
+    if key == "texture":
+        return str(product.texture or "")
+
+    if key == "dimension_x":
+        return product.dimension_x
+
+    if key == "dimension_y":
+        return product.dimension_y
+
+    if key == "description":
+        return product.description or ""
+
+    if key == "storage_location":
+        return str(product.storage_location or "")
+
+    if key == "price":
+        return product.price
+
+    if key == "status":
+        return product.get_status_display()
+
+    if key == "created_at":
+        return (
+            product.created_at.replace(tzinfo=None)
+            if product.created_at
+            else None
+        )
+
+    if key == "created_by":
+        return str(product.created_by or "")
+
+    if key == "updated_at":
+        return (
+            product.updated_at.replace(tzinfo=None)
+            if product.updated_at
+            else None
+        )
+
+    if key == "updated_by":
+        return str(product.updated_by or "")
+
+    return ""
+
+
 @login_required
 @role_required("admin", "manager", "worker", "viewer")
 def product_list_excel(request):
@@ -126,60 +224,31 @@ def product_list_excel(request):
     from openpyxl.utils import get_column_letter
 
     products = get_filtered_products(request).order_by("code")
+    columns = _selected_product_export_columns(request)
 
     workbook = Workbook()
     worksheet = workbook.active
     worksheet.title = "Products"
 
-    headers = [
-        "Code",
-        "Name",
-        "Type",
-        "Texture",
-        "Dim X",
-        "Dim Y",
-        "Description",
-        "Storage Location",
-        "Price",
-        "Status",
-        "Created At",
-        "Created By",
-        "Updated At",
-        "Updated By",
-    ]
-
-    worksheet.append(headers)
+    worksheet.append([
+        label
+        for key, label, width in columns
+    ])
 
     for cell in worksheet[1]:
         cell.font = Font(bold=True)
 
     for product in products:
         worksheet.append([
-            product.code,
-            product.name,
-            str(product.type or ""),
-            str(product.texture or ""),
-            product.dimension_x,
-            product.dimension_y,
-            product.description or "",
-            str(product.storage_location or ""),
-            product.price,
-            product.get_status_display(),
-            product.created_at.replace(tzinfo=None) if product.created_at else None,
-            str(product.created_by or ""),
-            product.updated_at.replace(tzinfo=None) if product.updated_at else None,
-            str(product.updated_by or ""),
+            _product_export_value(product, key)
+            for key, label, width in columns
         ])
 
     worksheet.freeze_panes = "A2"
     worksheet.auto_filter.ref = worksheet.dimensions
 
-    widths = [
-        16, 26, 18, 18, 12, 12, 34,
-        18, 12, 14, 18, 16, 18, 16,
-    ]
-
-    for index, width in enumerate(widths, start=1):
+    for index, column in enumerate(columns, start=1):
+        key, label, width = column
         worksheet.column_dimensions[
             get_column_letter(index)
         ].width = width
@@ -205,12 +274,33 @@ def product_list_excel(request):
 @login_required
 @role_required("admin", "manager", "worker", "viewer")
 def product_list_pdf(request):
-    products = get_filtered_products(request).order_by("code")
+    products = list(
+        get_filtered_products(request).order_by("code")
+    )
+    columns = _selected_product_export_columns(request)
+
+    pdf_columns = [
+        {
+            "key": key,
+            "label": label,
+        }
+        for key, label, width in columns
+    ]
+
+    rows = [
+        [
+            _product_export_value(product, key)
+            for key, label, width in columns
+        ]
+        for product in products
+    ]
 
     html_string = render_to_string(
         "inventory/pdf/product_list_pdf.html",
         {
-            "products": products,
+            "columns": pdf_columns,
+            "rows": rows,
+            "product_count": len(products),
             "generated_at": timezone.localtime(),
         },
     )

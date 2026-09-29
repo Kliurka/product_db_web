@@ -604,3 +604,29 @@ textarea {
         width: 100%;
     }
 }
+
+
+.product-list-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.product-filter-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.product-filter-actions button {
+    margin: 0;
+}
+
+@media (max-width: 600px) {
+    .product-list-actions,
+    .product-filter-actions {
+        flex-wrap: wrap;
+    }
+}

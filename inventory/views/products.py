@@ -1,4 +1,5 @@
 from io import BytesIO
+import base64
 
 import qrcode
 from django.utils import timezone
@@ -98,8 +99,115 @@ def product_detail(request, code):
     )
 
 
+@login_required
+@role_required("admin", "manager", "worker", "viewer")
 def scan_qr(request):
-    return render(request, 'inventory/scan_qr.html')
+    code = request.GET.get("code", "").strip()
+
+    if code:
+        product = Product.objects.filter(
+            code=code,
+        ).first()
+
+        if product:
+            return redirect(
+                "product_detail",
+                code=product.code,
+            )
+
+        return render(
+            request,
+            "inventory/scan_qr.html",
+            {
+                "scan_error": (
+                    f"Product with code '{code}' was not found."
+                ),
+                "scanned_code": code,
+            },
+        )
+
+    return render(
+        request,
+        "inventory/scan_qr.html",
+    )
+
+
+def _product_qr_data_uri(product):
+    image = qrcode.make(product.qr_text())
+
+    buffer = BytesIO()
+    image.save(buffer, format="PNG")
+
+    encoded = base64.b64encode(
+        buffer.getvalue()
+    ).decode("ascii")
+
+    return f"data:image/png;base64,{encoded}"
+
+
+@login_required
+@role_required("admin", "manager", "worker", "viewer")
+def product_labels(request):
+    selected_ids = [
+        value
+        for value in request.GET.getlist("ids")
+        if value.isdigit()
+    ]
+
+    if selected_ids:
+        products = (
+            Product.objects
+            .select_related(
+                "type",
+                "texture",
+                "storage_location",
+            )
+            .filter(id__in=selected_ids)
+            .order_by("code")
+        )
+    else:
+        products = get_filtered_products(
+            request
+        ).order_by("code")
+
+    label_size = request.GET.get(
+        "size",
+        "60x40",
+    )
+
+    allowed_sizes = {
+        "50x30": ("50mm", "30mm"),
+        "60x40": ("60mm", "40mm"),
+        "70x40": ("70mm", "40mm"),
+    }
+
+    if label_size not in allowed_sizes:
+        label_size = "60x40"
+
+    label_width, label_height = allowed_sizes[
+        label_size
+    ]
+
+    label_products = [
+        {
+            "product": product,
+            "qr_data_uri": _product_qr_data_uri(
+                product
+            ),
+        }
+        for product in products
+    ]
+
+    return render(
+        request,
+        "inventory/product_labels.html",
+        {
+            "label_products": label_products,
+            "label_size": label_size,
+            "label_width": label_width,
+            "label_height": label_height,
+        },
+    )
 
 
 @login_required

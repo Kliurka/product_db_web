@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic import RedirectView
 
 from inventory.views import orders
 from inventory.views.production import (
@@ -18,6 +19,7 @@ from inventory.views.reports import (
 from . import views
 
 urlpatterns = [
+    path("favicon.ico", RedirectView.as_view(url="/static/inventory/favicon.svg", permanent=True)),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     

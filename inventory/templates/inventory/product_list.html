@@ -14,21 +14,8 @@
             <button class="btn-dark" type="button">+ Add Product</button>
         </a>
 
-        <button
-            type="submit"
-            form="product-filter-form"
-            formaction="{% url 'product_list_excel' %}"
-        >
-            Excel
-        </button>
-
-        <button
-            type="submit"
-            form="product-filter-form"
-            formaction="{% url 'product_list_pdf' %}"
-            formtarget="_blank"
-        >
-            PDF
+        <button type="button" onclick="openProductExportDialog()">
+            Export
         </button>
     </div>
 
@@ -50,6 +37,51 @@
                 Required X or Y: product orientation does not matter. A rotated product is accepted if it fits the entered dimensions.
             </div>
         {% endif %}
+
+        <dialog id="product-export-dialog" class="product-export-dialog">
+            <div class="product-export-dialog-title">
+                Export columns
+            </div>
+
+            <div class="product-export-columns">
+                <label><input type="checkbox" name="columns" value="code" checked> Code</label>
+                <label><input type="checkbox" name="columns" value="name" checked> Name</label>
+                <label><input type="checkbox" name="columns" value="type" checked> Type</label>
+                <label><input type="checkbox" name="columns" value="texture" checked> Texture</label>
+                <label><input type="checkbox" name="columns" value="dimension_x" checked> Dim X</label>
+                <label><input type="checkbox" name="columns" value="dimension_y" checked> Dim Y</label>
+                <label><input type="checkbox" name="columns" value="description" checked> Description</label>
+                <label><input type="checkbox" name="columns" value="storage_location" checked> Storage</label>
+                <label><input type="checkbox" name="columns" value="price" checked> Price</label>
+                <label><input type="checkbox" name="columns" value="status" checked> Status</label>
+                <label><input type="checkbox" name="columns" value="created_at" checked> Created At</label>
+                <label><input type="checkbox" name="columns" value="created_by" checked> Created By</label>
+                <label><input type="checkbox" name="columns" value="updated_at" checked> Updated At</label>
+                <label><input type="checkbox" name="columns" value="updated_by" checked> Updated By</label>
+            </div>
+
+            <div class="product-export-dialog-actions">
+                <button type="button" onclick="setAllProductExportColumns(true)">
+                    Select all
+                </button>
+
+                <button type="button" onclick="setAllProductExportColumns(false)">
+                    Clear
+                </button>
+
+                <button type="button" onclick="exportProducts('excel')">
+                    Excel
+                </button>
+
+                <button type="button" onclick="exportProducts('pdf')">
+                    PDF
+                </button>
+
+                <button type="button" onclick="closeProductExportDialog()">
+                    Cancel
+                </button>
+            </div>
+        </dialog>
 
         <div class="product-table-scroll">
             <table class="product-list-table">
@@ -235,4 +267,49 @@
     </form>
 
 </div>
+
+<script>
+function openProductExportDialog() {
+    document.getElementById("product-export-dialog").showModal();
+}
+
+function closeProductExportDialog() {
+    document.getElementById("product-export-dialog").close();
+}
+
+function setAllProductExportColumns(checked) {
+    document
+        .querySelectorAll('#product-export-dialog input[name="columns"]')
+        .forEach(function (checkbox) {
+            checkbox.checked = checked;
+        });
+}
+
+function exportProducts(format) {
+    const form = document.getElementById("product-filter-form");
+    const params = new URLSearchParams(new FormData(form));
+
+    const selectedColumns = document.querySelectorAll(
+        '#product-export-dialog input[name="columns"]:checked'
+    );
+
+    params.delete("columns");
+
+    selectedColumns.forEach(function (checkbox) {
+        params.append("columns", checkbox.value);
+    });
+
+    const baseUrl = format === "excel"
+        ? "{% url 'product_list_excel' %}"
+        : "{% url 'product_list_pdf' %}";
+
+    const url = baseUrl + "?" + params.toString();
+
+    if (format === "pdf") {
+        window.open(url, "_blank");
+    } else {
+        window.location.href = url;
+    }
+}
+</script>
 {% endblock %}

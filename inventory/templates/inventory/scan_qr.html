@@ -1,41 +1,77 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Scan QR</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+{% extends "inventory/base.html" %}
 
-    <script src="https://unpkg.com/html5-qrcode"></script>
-</head>
-<body>
+{% block content %}
+<div class="page">
 
-<h2>Scan Product QR</h2>
+    <div class="subtitle">Catalog Management / Products</div>
+    <h1>Scan Product QR</h1>
 
-<div id="reader" style="width:100%; max-width:400px;"></div>
+    <div class="top-actions">
+        <a href="{% url 'product_list' %}">
+            <button type="button">← Back to products</button>
+        </a>
+    </div>
 
+    {% if scan_error %}
+        <div class="erp-panel qr-scan-error">
+            <div class="erp-panel-title">QR not found</div>
+            <p>{{ scan_error }}</p>
+        </div>
+    {% endif %}
+
+    <div class="erp-panel qr-scan-panel">
+        <div class="erp-panel-title">Camera Scanner</div>
+        <div id="reader"></div>
+    </div>
+
+    <div class="erp-panel">
+        <div class="erp-panel-title">Enter Code Manually</div>
+
+        <form method="get" class="qr-manual-form">
+            <input
+                type="text"
+                name="code"
+                placeholder="Product code"
+                value="{{ scanned_code|default:'' }}"
+                required
+            >
+            <button class="btn-dark" type="submit">
+                Open Product
+            </button>
+        </form>
+    </div>
+
+</div>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
 <script>
-function onScanSuccess(decodedText) {
-    const params = new URLSearchParams(window.location.search);
-    const next = params.get("next");
+let scanLocked = false;
 
-    if (next === "products") {
-        window.location.href =
-            "/products/?q=" + encodeURIComponent(decodedText);
-    } else {
-        window.location.href =
-            "/product/" + encodeURIComponent(decodedText) + "/";
+function onScanSuccess(decodedText) {
+    if (scanLocked) {
+        return;
     }
+
+    scanLocked = true;
+
+    window.location.href =
+        "{% url 'scan_qr' %}?code=" +
+        encodeURIComponent(decodedText);
 }
 
 const scanner = new Html5QrcodeScanner(
     "reader",
     {
         fps: 10,
-        qrbox: 250
-    }
+        qrbox: {
+            width: 250,
+            height: 250
+        },
+        rememberLastUsedCamera: true
+    },
+    false
 );
 
 scanner.render(onScanSuccess);
 </script>
-
-</body>
-</html>
+{% endblock %}

@@ -19,124 +19,215 @@
         </a>
     </div>
 
-    <form method="get" class="product-filter-toolbar">
-        <input
-            class="product-filter-search"
-            type="text"
-            name="q"
-            placeholder="Search by code or name..."
-            value="{{ q }}"
-        >
-
-        <select name="type">
-            <option value="">All Types</option>
-            {% for t in types %}
-                <option value="{{ t.id }}" {% if selected_type == t.id|stringformat:"s" %}selected{% endif %}>
-                    {{ t.name }}
-                </option>
-            {% endfor %}
-        </select>
-
-        <select name="texture">
-            <option value="">All Textures</option>
-            {% for texture in textures %}
-                <option value="{{ texture.id }}" {% if selected_texture == texture.id|stringformat:"s" %}selected{% endif %}>
-                    {{ texture.name }}
-                </option>
-            {% endfor %}
-        </select>
-
-        <div class="product-dimension-filter">
+    <form method="get" class="product-column-filter-form">
+        <div class="product-filter-actions">
             <input
-                type="number"
-                name="dim_x"
-                step="0.01"
-                min="0"
-                placeholder="Required X"
-                value="{{ required_x }}"
+                class="product-filter-search"
+                type="text"
+                name="q"
+                placeholder="Search code, name or description..."
+                value="{{ q }}"
             >
-            <span>×</span>
-            <input
-                type="number"
-                name="dim_y"
-                step="0.01"
-                min="0"
-                placeholder="Required Y"
-                value="{{ required_y }}"
-            >
+
+            <button class="btn-green" type="submit">Filter</button>
+
+            <a href="{% url 'product_list' %}">
+                <button type="button">Reset</button>
+            </a>
+
+            <a href="{% url 'scan_qr' %}?next=products">
+                <button type="button">▦ Scan QR</button>
+            </a>
         </div>
 
-        <select name="status">
-            <option value="">All Statuses</option>
-            {% for s in statuses %}
-                <option value="{{ s.0 }}" {% if selected_status == s.0 %}selected{% endif %}>
-                    {{ s.1 }}
-                </option>
-            {% endfor %}
-        </select>
+        {% if required_x or required_y %}
+            <div class="erp-help product-size-help">
+                Required X or Y: product orientation does not matter. A rotated product is accepted if it fits the entered dimensions.
+            </div>
+        {% endif %}
 
-        <button class="btn-green" type="submit">Filter</button>
+        <div class="product-table-scroll">
+            <table class="product-list-table">
+                <thead>
+                    <tr>
+                        <th>{% sort_link 'code' 'Code' %}</th>
+                        <th>{% sort_link 'name' 'Name' %}</th>
+                        <th>{% sort_link 'type__name' 'Type' %}</th>
+                        <th>{% sort_link 'texture__name' 'Texture' %}</th>
+                        <th>{% sort_link 'dimension_x' 'Dim X' %}</th>
+                        <th>{% sort_link 'dimension_y' 'Dim Y' %}</th>
+                        <th>Description</th>
+                        <th>{% sort_link 'storage_location__sector' 'Storage Loc.' %}</th>
+                        <th>{% sort_link 'price' 'Price' %}</th>
+                        <th>{% sort_link 'status' 'Status' %}</th>
+                        <th class="hide-mobile">{% sort_link 'created_at' 'Created At' %}</th>
+                        <th class="hide-mobile">Created By</th>
+                        <th class="hide-mobile">{% sort_link 'updated_at' 'Updated At' %}</th>
+                        <th class="hide-mobile">Updated By</th>
+                    </tr>
 
-        <a href="{% url 'product_list' %}">
-            <button type="button">Reset</button>
-        </a>
+                    <tr class="product-filter-row">
+                        <th>
+                            <input type="text" name="code" placeholder="Code" value="{{ code_filter }}">
+                        </th>
 
-        <a href="{% url 'scan_qr' %}?next=products">
-            <button type="button">▦ Scan QR</button>
-        </a>
+                        <th>
+                            <input type="text" name="name" placeholder="Name" value="{{ name_filter }}">
+                        </th>
+
+                        <th>
+                            <select name="type">
+                                <option value="">All</option>
+                                {% for t in types %}
+                                    <option value="{{ t.id }}" {% if selected_type == t.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ t.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </th>
+
+                        <th>
+                            <select name="texture">
+                                <option value="">All</option>
+                                {% for texture in textures %}
+                                    <option value="{{ texture.id }}" {% if selected_texture == texture.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ texture.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </th>
+
+                        <th>
+                            <input
+                                type="number"
+                                name="dim_x"
+                                step="0.01"
+                                min="0"
+                                placeholder="Required X or Y"
+                                value="{{ required_x }}"
+                            >
+                        </th>
+
+                        <th>
+                            <input
+                                type="number"
+                                name="dim_y"
+                                step="0.01"
+                                min="0"
+                                placeholder="Required X or Y"
+                                value="{{ required_y }}"
+                            >
+                        </th>
+
+                        <th>
+                            <input
+                                type="text"
+                                name="description"
+                                placeholder="Description"
+                                value="{{ description_filter }}"
+                            >
+                        </th>
+
+                        <th>
+                            <select name="storage">
+                                <option value="">All</option>
+                                {% for storage in storage_locations %}
+                                    <option value="{{ storage.id }}" {% if selected_storage == storage.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ storage }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </th>
+
+                        <th>
+                            <input
+                                type="number"
+                                name="price"
+                                step="0.01"
+                                min="0"
+                                placeholder="Price"
+                                value="{{ price_filter }}"
+                            >
+                        </th>
+
+                        <th>
+                            <select name="status">
+                                <option value="">All</option>
+                                {% for s in statuses %}
+                                    <option value="{{ s.0 }}" {% if selected_status == s.0 %}selected{% endif %}>
+                                        {{ s.1 }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </th>
+
+                        <th class="hide-mobile">
+                            <input
+                                type="date"
+                                name="created_date"
+                                value="{{ created_date }}"
+                            >
+                        </th>
+
+                        <th class="hide-mobile">
+                            <select name="created_by">
+                                <option value="">All</option>
+                                {% for user_item in users %}
+                                    <option value="{{ user_item.id }}" {% if selected_created_by == user_item.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ user_item }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </th>
+
+                        <th class="hide-mobile">
+                            <input
+                                type="date"
+                                name="updated_date"
+                                value="{{ updated_date }}"
+                            >
+                        </th>
+
+                        <th class="hide-mobile">
+                            <select name="updated_by">
+                                <option value="">All</option>
+                                {% for user_item in users %}
+                                    <option value="{{ user_item.id }}" {% if selected_updated_by == user_item.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ user_item }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for p in products %}
+                    <tr>
+                        <td><a class="code" href="{% url 'product_detail' p.code %}">{{ p.code }}</a></td>
+                        <td><b>{{ p.name }}</b></td>
+                        <td>{{ p.type }}</td>
+                        <td>{{ p.texture }}</td>
+                        <td>{{ p.dimension_x }}</td>
+                        <td>{{ p.dimension_y }}</td>
+                        <td>{{ p.description|default:"-"|truncatechars:30 }}</td>
+                        <td>{{ p.storage_location }}</td>
+                        <td><b>{{ p.price }}</b></td>
+                        <td><span class="status {{ p.status }}">{{ p.status }}</span></td>
+                        <td class="hide-mobile">{{ p.created_at|date:"Y-m-d" }}</td>
+                        <td class="hide-mobile">{{ p.created_by }}</td>
+                        <td class="hide-mobile">{{ p.updated_at|date:"Y-m-d" }}</td>
+                        <td class="hide-mobile">{{ p.updated_by }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="14">No products found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </form>
-
-    {% if required_x or required_y %}
-        <div class="erp-help product-size-help">
-            Size filter accepts rotated products: X/Y orientation does not matter.
-        </div>
-    {% endif %}
-
-    <table>
-        <thead>
-            <tr>
-                <th>{% sort_link 'code' 'Code' %}</th>
-                <th>{% sort_link 'name' 'Name' %}</th>
-                <th>{% sort_link 'type__name' 'Type' %}</th>
-                <th>{% sort_link 'texture__name' 'Texture' %}</th>
-                <th>{% sort_link 'dimension_x' 'Dim X' %}</th>
-                <th>{% sort_link 'dimension_y' 'Dim Y' %}</th>
-                <th>Description</th>
-                <th>{% sort_link 'storage_location__sector' 'Storage Loc.' %}</th>
-                <th>{% sort_link 'price' 'Price' %}</th>
-                <th>{% sort_link 'status' 'Status' %}</th>
-                <th class="hide-mobile">{% sort_link 'created_at' 'Created At' %}</th>
-                <th class="hide-mobile">Created By</th>
-                <th class="hide-mobile">{% sort_link 'updated_at' 'Updated At' %}</th>
-                <th class="hide-mobile">Updated By</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            {% for p in products %}
-            <tr>
-                <td><a class="code" href="{% url 'product_detail' p.code %}">{{ p.code }}</a></td>
-                <td><b>{{ p.name }}</b></td>
-                <td>{{ p.type }}</td>
-                <td>{{ p.texture }}</td>
-                <td>{{ p.dimension_x }}</td>
-                <td>{{ p.dimension_y }}</td>
-                <td>{{ p.description|default:"-"|truncatechars:30 }}</td>
-                <td>{{ p.storage_location }}</td>
-                <td><b>{{ p.price }}</b></td>
-                <td><span class="status {{ p.status }}">{{ p.status }}</span></td>
-                <td class="hide-mobile">{{ p.created_at|date:"Y-m-d" }}</td>
-                <td class="hide-mobile">{{ p.created_by }}</td>
-                <td class="hide-mobile">{{ p.updated_at|date:"Y-m-d" }}</td>
-                <td class="hide-mobile">{{ p.updated_by }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="14">No products found.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
 
 </div>
 {% endblock %}

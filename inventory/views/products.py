@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from inventory.forms import ProductForm
-from inventory.models import Product, ProductType, Texture
+from inventory.models import AppUser, Product, ProductType, StorageLocation, Texture
 from inventory.utils.sorting import get_sort_params
 
 from django.contrib.auth.decorators import login_required
@@ -23,19 +23,41 @@ def product_list(request):
         "type",
         "texture",
         "storage_location",
+        "created_by",
+        "updated_by",
     )
 
     q = request.GET.get("q", "").strip()
+    code_filter = request.GET.get("code", "").strip()
+    name_filter = request.GET.get("name", "").strip()
     selected_type = request.GET.get("type", "")
     selected_texture = request.GET.get("texture", "")
-    selected_status = request.GET.get("status", "")
     required_x = request.GET.get("dim_x", "").strip()
     required_y = request.GET.get("dim_y", "").strip()
+    description_filter = request.GET.get("description", "").strip()
+    selected_storage = request.GET.get("storage", "")
+    price_filter = request.GET.get("price", "").strip()
+    selected_status = request.GET.get("status", "")
+    created_date = request.GET.get("created_date", "").strip()
+    selected_created_by = request.GET.get("created_by", "")
+    updated_date = request.GET.get("updated_date", "").strip()
+    selected_updated_by = request.GET.get("updated_by", "")
 
     if q:
         products = products.filter(
             Q(code__icontains=q)
             | Q(name__icontains=q)
+            | Q(description__icontains=q)
+        )
+
+    if code_filter:
+        products = products.filter(
+            code__icontains=code_filter,
+        )
+
+    if name_filter:
+        products = products.filter(
+            name__icontains=name_filter,
         )
 
     if selected_type:
@@ -46,11 +68,6 @@ def product_list(request):
     if selected_texture:
         products = products.filter(
             texture_id=selected_texture,
-        )
-
-    if selected_status:
-        products = products.filter(
-            status=selected_status,
         )
 
     try:
@@ -85,6 +102,49 @@ def product_list(request):
             | Q(dimension_y__gte=dim_y)
         )
 
+    if description_filter:
+        products = products.filter(
+            description__icontains=description_filter,
+        )
+
+    if selected_storage:
+        products = products.filter(
+            storage_location_id=selected_storage,
+        )
+
+    if price_filter:
+        try:
+            products = products.filter(
+                price=float(price_filter),
+            )
+        except ValueError:
+            pass
+
+    if selected_status:
+        products = products.filter(
+            status=selected_status,
+        )
+
+    if created_date:
+        products = products.filter(
+            created_at__date=created_date,
+        )
+
+    if selected_created_by:
+        products = products.filter(
+            created_by_id=selected_created_by,
+        )
+
+    if updated_date:
+        products = products.filter(
+            updated_at__date=updated_date,
+        )
+
+    if selected_updated_by:
+        products = products.filter(
+            updated_by_id=selected_updated_by,
+        )
+
     allowed_sort = [
         "code",
         "name",
@@ -107,17 +167,38 @@ def product_list(request):
 
     products = products.order_by(order_by)
 
+    users = (
+        AppUser.objects
+        .filter(active=True)
+        .order_by("username")
+    )
+
     context = {
         "products": products,
         "types": ProductType.objects.all().order_by("name"),
         "textures": Texture.objects.all().order_by("name"),
+        "storage_locations": StorageLocation.objects.all().order_by(
+            "sector",
+            "number",
+            "position",
+        ),
+        "users": users,
         "statuses": Product.PRODUCT_STATUS,
         "q": q,
+        "code_filter": code_filter,
+        "name_filter": name_filter,
         "selected_type": selected_type,
         "selected_texture": selected_texture,
-        "selected_status": selected_status,
         "required_x": required_x,
         "required_y": required_y,
+        "description_filter": description_filter,
+        "selected_storage": selected_storage,
+        "price_filter": price_filter,
+        "selected_status": selected_status,
+        "created_date": created_date,
+        "selected_created_by": selected_created_by,
+        "updated_date": updated_date,
+        "selected_updated_by": selected_updated_by,
         "sort": sort,
         "direction": direction,
     }

@@ -8,7 +8,12 @@ from inventory.views.production import (
     production_operation_status,
     production_operation_remove,
 )
-from inventory.views.reports import order_pdf, production_pdf
+from inventory.views.reports import (
+    order_pdf,
+    production_pdf,
+    product_list_excel,
+    product_list_pdf,
+)
 
 from . import views
 
@@ -78,5 +83,7 @@ urlpatterns = [
     
     path("reports/order/<str:order_code>/pdf/", order_pdf, name="order_pdf"),
     path("reports/order/<str:order_code>/production/", production_pdf, name="production_pdf"),
+    path("reports/products/excel/", product_list_excel, name="product_list_excel"),
+    path("reports/products/pdf/", product_list_pdf, name="product_list_pdf"),
     
 ]

@@ -24,6 +24,7 @@ urlpatterns = [
     path('', views.dashboard, name='dashboard'),
     path('products/', views.product_list, name='product_list'),
     path('scan/', views.scan_qr, name='scan_qr'),
+    path('products/labels/', views.product_labels, name='product_labels'),
     
     path('orders/', views.order_list, name='order_list'),
     path('orders/add/', views.order_add, name='order_add'),

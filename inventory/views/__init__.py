@@ -7,6 +7,7 @@ from .products import (
     product_edit,
     product_list,
     product_qr,
+    product_labels,
     scan_qr,
 )
 

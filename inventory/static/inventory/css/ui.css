@@ -436,3 +436,74 @@ textarea {
         width: 68px;
     }
 }
+
+
+/* PRODUCT LIST FILTERS */
+
+.product-filter-toolbar {
+    display: grid;
+    grid-template-columns:
+        minmax(220px, 1.6fr)
+        minmax(150px, 0.8fr)
+        minmax(150px, 0.8fr)
+        minmax(260px, 1.2fr)
+        minmax(140px, 0.8fr)
+        auto auto auto;
+    gap: 8px;
+    align-items: center;
+    margin: 22px 0 8px 0;
+    max-width: 1180px;
+}
+
+.product-filter-toolbar input,
+.product-filter-toolbar select,
+.product-filter-toolbar button {
+    margin: 0;
+}
+
+.product-filter-search {
+    min-width: 0;
+}
+
+.product-dimension-filter {
+    display: grid;
+    grid-template-columns: minmax(90px, 1fr) auto minmax(90px, 1fr);
+    gap: 6px;
+    align-items: center;
+}
+
+.product-dimension-filter span {
+    font-weight: bold;
+    text-align: center;
+}
+
+.product-size-help {
+    margin-bottom: 12px;
+}
+
+@media (max-width: 1000px) {
+    .product-filter-toolbar {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .product-filter-search,
+    .product-dimension-filter {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 600px) {
+    .product-filter-toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    .product-filter-search,
+    .product-dimension-filter {
+        grid-column: auto;
+    }
+
+    .product-filter-toolbar a,
+    .product-filter-toolbar a button {
+        width: 100%;
+    }
+}

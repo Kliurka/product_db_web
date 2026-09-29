@@ -8,6 +8,9 @@ from .products import (
     product_list,
     product_qr,
     product_labels,
+    pwa_manifest,
+    pwa_icon,
+    service_worker,
     scan_qr,
 )
 

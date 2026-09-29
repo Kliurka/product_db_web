@@ -1,0 +1,76 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="page product-label-page">
+
+    <div class="subtitle">Catalog Management / QR Labels</div>
+    <h1>Product QR Labels</h1>
+    <div>{{ label_products|length }} label{{ label_products|length|pluralize }}</div>
+
+    <div class="product-label-toolbar">
+        <a href="{% url 'product_list' %}">
+            <button type="button">← Back to products</button>
+        </a>
+
+        <label>
+            Label size
+            <select id="label-size-select" onchange="changeLabelSize(this.value)">
+                <option value="50x30" {% if label_size == "50x30" %}selected{% endif %}>50 × 30 mm</option>
+                <option value="60x40" {% if label_size == "60x40" %}selected{% endif %}>60 × 40 mm</option>
+                <option value="70x40" {% if label_size == "70x40" %}selected{% endif %}>70 × 40 mm</option>
+            </select>
+        </label>
+
+        <button class="btn-dark" type="button" onclick="window.print()">
+            Print
+        </button>
+    </div>
+
+    <div class="product-label-grid">
+        {% for item in label_products %}
+            <div
+                class="product-label"
+                style="--label-width: {{ label_width }}; --label-height: {{ label_height }};"
+            >
+                <div class="product-label-qr">
+                    <img src="{{ item.qr_data_uri }}" alt="QR">
+                </div>
+
+                <div class="product-label-info">
+                    <div class="product-label-code">
+                        {{ item.product.code }}
+                    </div>
+
+                    <div class="product-label-name">
+                        {{ item.product.name }}
+                    </div>
+
+                    <div>
+                        {{ item.product.dimension_x|default:"-" }}
+                        ×
+                        {{ item.product.dimension_y|default:"-" }}
+                        mm
+                    </div>
+
+                    <div>
+                        {{ item.product.storage_location|default:"-" }}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="center-note">
+                No products selected.
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<script>
+function changeLabelSize(size) {
+    const params = new URLSearchParams(window.location.search);
+    params.set("size", size);
+    window.location.search = params.toString();
+}
+</script>
+{% endblock %}

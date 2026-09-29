@@ -28,6 +28,10 @@
             >
 
             <div class="qr-code">{{ product.code }}</div>
+
+            <a href="{% url 'product_labels' %}?ids={{ product.id }}">
+                <button type="button">Print Label</button>
+            </a>
         </div>
     </div>
 

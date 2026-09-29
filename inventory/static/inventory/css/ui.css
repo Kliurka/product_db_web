@@ -690,3 +690,45 @@ textarea {
         grid-template-columns: 1fr 1fr;
     }
 }
+
+
+/* QR / PRODUCT SELECTION */
+
+.product-select-column {
+    width: 38px;
+    text-align: center;
+}
+
+.product-select-column input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+}
+
+.qr-scan-panel #reader {
+    width: 100%;
+    max-width: 460px;
+    margin: 0 auto;
+}
+
+.qr-scan-error {
+    border-color: #ff3b30;
+}
+
+.qr-manual-form {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) auto;
+    gap: 8px;
+    align-items: end;
+    max-width: 620px;
+}
+
+.qr-manual-form input,
+.qr-manual-form button {
+    margin: 0;
+}
+
+@media (max-width: 600px) {
+    .qr-manual-form {
+        grid-template-columns: 1fr;
+    }
+}

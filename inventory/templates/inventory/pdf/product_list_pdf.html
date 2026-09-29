@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 12mm;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 9px;
+            color: #111;
+        }
+
+        h1 {
+            margin: 0 0 4px 0;
+            font-size: 18px;
+        }
+
+        .meta {
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #999;
+            padding: 4px 5px;
+            vertical-align: top;
+        }
+
+        th {
+            background: #e8e8df;
+            text-align: left;
+            font-size: 8px;
+            text-transform: uppercase;
+        }
+
+        thead {
+            display: table-header-group;
+        }
+
+        tr {
+            page-break-inside: avoid;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Filtered Product List</h1>
+
+<div class="meta">
+    {{ products|length }} product{{ products|length|pluralize }}
+    · Generated {{ generated_at|date:"Y-m-d H:i" }}
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Texture</th>
+            <th>Dim X</th>
+            <th>Dim Y</th>
+            <th>Description</th>
+            <th>Storage</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Created By</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for product in products %}
+            <tr>
+                <td>{{ product.code }}</td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.type|default:"-" }}</td>
+                <td>{{ product.texture|default:"-" }}</td>
+                <td>{{ product.dimension_x|default:"-" }}</td>
+                <td>{{ product.dimension_y|default:"-" }}</td>
+                <td>{{ product.description|default:"-" }}</td>
+                <td>{{ product.storage_location|default:"-" }}</td>
+                <td>{{ product.price|default:"-" }}</td>
+                <td>{{ product.get_status_display }}</td>
+                <td>{{ product.created_at|date:"Y-m-d" }}</td>
+                <td>{{ product.created_by|default:"-" }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="12">No products found.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+</body>
+</html>

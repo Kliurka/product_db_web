@@ -57,47 +57,29 @@
 <h1>Filtered Product List</h1>
 
 <div class="meta">
-    {{ products|length }} product{{ products|length|pluralize }}
+    {{ product_count }} product{{ product_count|pluralize }}
     · Generated {{ generated_at|date:"Y-m-d H:i" }}
 </div>
 
 <table>
     <thead>
         <tr>
-            <th>Code</th>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Texture</th>
-            <th>Dim X</th>
-            <th>Dim Y</th>
-            <th>Description</th>
-            <th>Storage</th>
-            <th>Price</th>
-            <th>Status</th>
-            <th>Created</th>
-            <th>Created By</th>
+            {% for column in columns %}
+                <th>{{ column.label }}</th>
+            {% endfor %}
         </tr>
     </thead>
 
     <tbody>
-        {% for product in products %}
+        {% for row in rows %}
             <tr>
-                <td>{{ product.code }}</td>
-                <td>{{ product.name }}</td>
-                <td>{{ product.type|default:"-" }}</td>
-                <td>{{ product.texture|default:"-" }}</td>
-                <td>{{ product.dimension_x|default:"-" }}</td>
-                <td>{{ product.dimension_y|default:"-" }}</td>
-                <td>{{ product.description|default:"-" }}</td>
-                <td>{{ product.storage_location|default:"-" }}</td>
-                <td>{{ product.price|default:"-" }}</td>
-                <td>{{ product.get_status_display }}</td>
-                <td>{{ product.created_at|date:"Y-m-d" }}</td>
-                <td>{{ product.created_by|default:"-" }}</td>
+                {% for value in row %}
+                    <td>{{ value|default:"-" }}</td>
+                {% endfor %}
             </tr>
         {% empty %}
             <tr>
-                <td colspan="12">No products found.</td>
+                <td colspan="{{ columns|length }}">No products found.</td>
             </tr>
         {% endfor %}
     </tbody>

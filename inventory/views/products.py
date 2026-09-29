@@ -2,10 +2,12 @@ from io import BytesIO
 import base64
 
 import qrcode
+from PIL import Image, ImageDraw
 from django.utils import timezone
 
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.cache import never_cache
 
 from inventory.forms import ProductForm
 from inventory.models import AppUser, Product, ProductType, StorageLocation, Texture
@@ -274,3 +276,190 @@ def product_edit(request, code):
             "photos": product.images.all(),
         }
     )
+
+
+@never_cache
+def pwa_manifest(request):
+    return JsonResponse(
+        {
+            "name": "Stone Factory ERP",
+            "short_name": "Stone ERP",
+            "description": "Stone Factory inventory and production ERP",
+            "start_url": "/",
+            "scope": "/",
+            "display": "standalone",
+            "background_color": "#f4f4ef",
+            "theme_color": "#111111",
+            "icons": [
+                {
+                    "src": "/pwa-icon/192.png",
+                    "sizes": "192x192",
+                    "type": "image/png",
+                    "purpose": "any maskable",
+                },
+                {
+                    "src": "/pwa-icon/512.png",
+                    "sizes": "512x512",
+                    "type": "image/png",
+                    "purpose": "any maskable",
+                },
+            ],
+        },
+        content_type="application/manifest+json",
+    )
+
+
+@never_cache
+def pwa_icon(request, size):
+    if size not in (192, 512):
+        size = 192
+
+    image = Image.new(
+        "RGB",
+        (size, size),
+        "#111111",
+    )
+    draw = ImageDraw.Draw(image)
+
+    margin = int(size * 0.14)
+    line_width = max(4, int(size * 0.035))
+
+    top = (size // 2, int(size * 0.20))
+    left = (int(size * 0.28), int(size * 0.31))
+    right = (int(size * 0.72), int(size * 0.31))
+    center = (size // 2, int(size * 0.42))
+
+    draw.line(
+        [left, top, right, center, left],
+        fill="#f4f4ef",
+        width=line_width,
+        joint="curve",
+    )
+
+    lower_left = (left[0], int(size * 0.58))
+    lower_center = (center[0], int(size * 0.70))
+    lower_right = (right[0], int(size * 0.58))
+
+    draw.line(
+        [left, lower_left, lower_center, center],
+        fill="#f4f4ef",
+        width=line_width,
+    )
+    draw.line(
+        [right, lower_right, lower_center],
+        fill="#f4f4ef",
+        width=line_width,
+    )
+
+    qr_x = int(size * 0.56)
+    qr_y = int(size * 0.43)
+    qr_size = int(size * 0.20)
+
+    draw.rectangle(
+        [
+            qr_x,
+            qr_y,
+            qr_x + qr_size,
+            qr_y + qr_size,
+        ],
+        fill="#f4f4ef",
+    )
+
+    cell = max(2, qr_size // 7)
+    qr_pattern = [
+        (1, 1), (2, 1), (4, 1), (5, 1),
+        (1, 2), (5, 2),
+        (1, 4), (2, 4), (4, 3), (5, 4),
+        (3, 5), (5, 5),
+    ]
+
+    for col, row in qr_pattern:
+        x1 = qr_x + col * cell
+        y1 = qr_y + row * cell
+        draw.rectangle(
+            [
+                x1,
+                y1,
+                x1 + cell,
+                y1 + cell,
+            ],
+            fill="#111111",
+        )
+
+    badge_x = margin
+    badge_y = int(size * 0.57)
+    badge_w = int(size * 0.34)
+    badge_h = int(size * 0.23)
+
+    draw.rounded_rectangle(
+        [
+            badge_x,
+            badge_y,
+            badge_x + badge_w,
+            badge_y + badge_h,
+        ],
+        radius=max(4, int(size * 0.025)),
+        fill="#f4f4ef",
+    )
+
+    for i in range(3):
+        y = badge_y + int(badge_h * (0.27 + i * 0.24))
+        draw.line(
+            [
+                badge_x + int(badge_w * 0.18),
+                y,
+                badge_x + int(badge_w * 0.80),
+                y,
+            ],
+            fill="#111111",
+            width=max(2, int(size * 0.018)),
+        )
+
+    buffer = BytesIO()
+    image.save(buffer, format="PNG")
+
+    return HttpResponse(
+        buffer.getvalue(),
+        content_type="image/png",
+    )
+
+
+@never_cache
+def service_worker(request):
+    javascript = """
+self.addEventListener("install", function () {
+    self.skipWaiting();
+});
+
+self.addEventListener("activate", function (event) {
+    event.waitUntil(self.clients.claim());
+});
+
+self.addEventListener("fetch", function (event) {
+    if (event.request.method !== "GET") {
+        return;
+    }
+
+    event.respondWith(
+        fetch(event.request).catch(function () {
+            return new Response(
+                "Stone Factory ERP is offline.",
+                {
+                    status: 503,
+                    headers: {
+                        "Content-Type": "text/plain; charset=utf-8"
+                    }
+                }
+            );
+        })
+    );
+});
+"""
+
+    response = HttpResponse(
+        javascript,
+        content_type="application/javascript",
+    )
+    response["Service-Worker-Allowed"] = "/"
+
+    return response

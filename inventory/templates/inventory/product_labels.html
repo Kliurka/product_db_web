@@ -1,69 +1,192 @@
-{% extends "inventory/base.html" %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-{% block content %}
-<div class="page product-label-page">
+    <title>Product QR Labels</title>
 
-    <div class="subtitle">Catalog Management / QR Labels</div>
-    <h1>Product QR Labels</h1>
-    <div>{{ label_products|length }} label{{ label_products|length|pluralize }}</div>
+    <style>
+        :root {
+            --label-width: {{ label_width }};
+            --label-height: {{ label_height }};
+        }
 
-    <div class="product-label-toolbar">
-        <a href="{% url 'product_list' %}">
-            <button type="button">← Back to products</button>
-        </a>
+        * {
+            box-sizing: border-box;
+        }
 
-        <label>
-            Label size
-            <select id="label-size-select" onchange="changeLabelSize(this.value)">
-                <option value="50x30" {% if label_size == "50x30" %}selected{% endif %}>50 × 30 mm</option>
-                <option value="60x40" {% if label_size == "60x40" %}selected{% endif %}>60 × 40 mm</option>
-                <option value="70x40" {% if label_size == "70x40" %}selected{% endif %}>70 × 40 mm</option>
-            </select>
-        </label>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: #111;
+            background: #f4f4ef;
+        }
 
-        <button class="btn-dark" type="button" onclick="window.print()">
-            Print
-        </button>
-    </div>
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            align-items: end;
+            flex-wrap: wrap;
+            padding: 16px;
+            border-bottom: 3px solid #111;
+            background: white;
+        }
 
-    <div class="product-label-grid">
-        {% for item in label_products %}
-            <div
-                class="product-label"
-                style="--label-width: {{ label_width }}; --label-height: {{ label_height }};"
-            >
-                <div class="product-label-qr">
-                    <img src="{{ item.qr_data_uri }}" alt="QR">
+        .toolbar label {
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .toolbar select,
+        .toolbar button {
+            padding: 9px;
+            border: 2px solid #111;
+            background: white;
+        }
+
+        .toolbar .print {
+            background: #111;
+            color: white;
+            font-weight: bold;
+        }
+
+        .labels {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 16px;
+        }
+
+        .label {
+            width: var(--label-width);
+            height: var(--label-height);
+            border: 1px solid #111;
+            background: white;
+            display: grid;
+            grid-template-columns: 42% 58%;
+            align-items: center;
+            padding: 2mm;
+            overflow: hidden;
+        }
+
+        .label-qr {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .label-qr img {
+            width: 100%;
+            max-width: calc(var(--label-height) - 4mm);
+            height: auto;
+            image-rendering: pixelated;
+        }
+
+        .label-info {
+            min-width: 0;
+            padding-left: 2mm;
+            font-size: 9pt;
+            line-height: 1.15;
+        }
+
+        .label-code {
+            font-size: 11pt;
+            font-weight: bold;
+            margin-bottom: 1mm;
+        }
+
+        .label-name {
+            font-weight: bold;
+            margin-bottom: 1mm;
+            word-break: break-word;
+        }
+
+        @page {
+            size: {{ label_width }} {{ label_height }};
+            margin: 0;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .toolbar {
+                display: none !important;
+            }
+
+            .labels {
+                display: block;
+                padding: 0;
+            }
+
+            .label {
+                width: {{ label_width }};
+                height: {{ label_height }};
+                border: 0;
+                page-break-after: always;
+                break-after: page;
+            }
+
+            .label:last-child {
+                page-break-after: auto;
+                break-after: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="toolbar">
+    <button type="button" onclick="history.back()">
+        ← Back
+    </button>
+
+    <label>
+        Label size
+        <select id="label-size-select" onchange="changeLabelSize(this.value)">
+            <option value="50x30" {% if label_size == "50x30" %}selected{% endif %}>50 × 30 mm</option>
+            <option value="60x40" {% if label_size == "60x40" %}selected{% endif %}>60 × 40 mm</option>
+            <option value="70x40" {% if label_size == "70x40" %}selected{% endif %}>70 × 40 mm</option>
+        </select>
+    </label>
+
+    <button class="print" type="button" onclick="window.print()">
+        Print {{ label_products|length }} label{{ label_products|length|pluralize }}
+    </button>
+</div>
+
+<div class="labels">
+    {% for item in label_products %}
+        <div class="label">
+            <div class="label-qr">
+                <img src="{{ item.qr_data_uri }}" alt="QR">
+            </div>
+
+            <div class="label-info">
+                <div class="label-code">
+                    {{ item.product.code }}
                 </div>
 
-                <div class="product-label-info">
-                    <div class="product-label-code">
-                        {{ item.product.code }}
-                    </div>
+                <div class="label-name">
+                    {{ item.product.name }}
+                </div>
 
-                    <div class="product-label-name">
-                        {{ item.product.name }}
-                    </div>
+                <div>
+                    {{ item.product.dimension_x|default:"-" }}
+                    ×
+                    {{ item.product.dimension_y|default:"-" }} mm
+                </div>
 
-                    <div>
-                        {{ item.product.dimension_x|default:"-" }}
-                        ×
-                        {{ item.product.dimension_y|default:"-" }}
-                        mm
-                    </div>
-
-                    <div>
-                        {{ item.product.storage_location|default:"-" }}
-                    </div>
+                <div>
+                    {{ item.product.storage_location|default:"-" }}
                 </div>
             </div>
-        {% empty %}
-            <div class="center-note">
-                No products selected.
-            </div>
-        {% endfor %}
-    </div>
-
+        </div>
+    {% empty %}
+        <p>No products selected.</p>
+    {% endfor %}
 </div>
 
 <script>
@@ -73,4 +196,6 @@ function changeLabelSize(size) {
     window.location.search = params.toString();
 }
 </script>
-{% endblock %}
+
+</body>
+</html>

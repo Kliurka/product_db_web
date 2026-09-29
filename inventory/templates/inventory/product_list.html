@@ -9,26 +9,31 @@
     <h1>Product List</h1>
     <div>{{ products|length }} records</div>
 
-    <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+    <div class="product-list-actions">
         <a href="/products/add/">
             <button class="btn-dark" type="button">+ Add Product</button>
         </a>
 
-        <a href="/products/export/">
-            <button type="button">Export</button>
-        </a>
+        <button
+            type="submit"
+            form="product-filter-form"
+            formaction="{% url 'product_list_excel' %}"
+        >
+            Excel
+        </button>
+
+        <button
+            type="submit"
+            form="product-filter-form"
+            formaction="{% url 'product_list_pdf' %}"
+            formtarget="_blank"
+        >
+            PDF
+        </button>
     </div>
 
-    <form method="get" class="product-column-filter-form">
+    <form method="get" id="product-filter-form" class="product-column-filter-form">
         <div class="product-filter-actions">
-            <input
-                class="product-filter-search"
-                type="text"
-                name="q"
-                placeholder="Search code, name or description..."
-                value="{{ q }}"
-            >
-
             <button class="btn-green" type="submit">Filter</button>
 
             <a href="{% url 'product_list' %}">

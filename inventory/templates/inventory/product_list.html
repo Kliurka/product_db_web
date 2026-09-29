@@ -19,8 +19,14 @@
         </a>
     </div>
 
-    <form method="get" class="toolbar">
-        <input class="search" type="text" name="q" placeholder="Search by code or name..." value="{{ q }}">
+    <form method="get" class="product-filter-toolbar">
+        <input
+            class="product-filter-search"
+            type="text"
+            name="q"
+            placeholder="Search by code or name..."
+            value="{{ q }}"
+        >
 
         <select name="type">
             <option value="">All Types</option>
@@ -30,6 +36,35 @@
                 </option>
             {% endfor %}
         </select>
+
+        <select name="texture">
+            <option value="">All Textures</option>
+            {% for texture in textures %}
+                <option value="{{ texture.id }}" {% if selected_texture == texture.id|stringformat:"s" %}selected{% endif %}>
+                    {{ texture.name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <div class="product-dimension-filter">
+            <input
+                type="number"
+                name="dim_x"
+                step="0.01"
+                min="0"
+                placeholder="Required X"
+                value="{{ required_x }}"
+            >
+            <span>×</span>
+            <input
+                type="number"
+                name="dim_y"
+                step="0.01"
+                min="0"
+                placeholder="Required Y"
+                value="{{ required_y }}"
+            >
+        </div>
 
         <select name="status">
             <option value="">All Statuses</option>
@@ -41,10 +76,21 @@
         </select>
 
         <button class="btn-green" type="submit">Filter</button>
+
+        <a href="{% url 'product_list' %}">
+            <button type="button">Reset</button>
+        </a>
+
         <a href="{% url 'scan_qr' %}?next=products">
             <button type="button">▦ Scan QR</button>
         </a>
     </form>
+
+    {% if required_x or required_y %}
+        <div class="erp-help product-size-help">
+            Size filter accepts rotated products: X/Y orientation does not matter.
+        </div>
+    {% endif %}
 
     <table>
         <thead>
